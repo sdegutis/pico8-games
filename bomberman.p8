@@ -568,8 +568,37 @@ function makecpu(p)
 end
 
 function update_cpu(p)
+	local cpu = p.cpu
+	
+	cpu.canbomb =
+		p.bombs_live < p.bombs_max
+	
+	--[[
+	
+	strategies:
+	
+	-- basic --
+	
+	if within range of live bomb
+		leave range
+	elseif item within 3 steps
+		walk toward item
+	elseif has bombs
+		if can access player
+			walk towards player
+			if 1 block away from player
+				lay bomb
+		else
+			walk towards nearest brick
+			if 1 block away from brick
+				lay bomb
+	
+	--]]
+	
 	p.mx = round(rnd(2)-1)
 	p.my = round(rnd(2)-1)
+	
+	
 	
 	if rnd() < 0.02 then
 		dobombbutton(p)
