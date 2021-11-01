@@ -51,10 +51,19 @@ function startgame()
 		{104,8},
 	}
 	
+	local spot = 1
 	for i=1,numplayers do
-		local x = spots[i][1]
-		local y = spots[i][2]
-		makeplayer(i-1,x,y)
+		local x = spots[spot][1]
+		local y = spots[spot][2]
+		makeplayer(i-1,x,y,false)
+		spot += 1
+	end
+	
+	for i=1,numcpus do
+		local x = spots[spot][1]
+		local y = spots[spot][2]
+		makeplayer(i-1,x,y,true)
+		spot += 1
 	end
 	
 	decodemap()
@@ -240,8 +249,9 @@ out_bomb_delay = 2 -- seconds
 invisible_timer = 7
 
 
-function makeplayer(n,x,y)
+function makeplayer(n,x,y,cpu)
 	add(players,{
+		cpu=cpu,
 		n=n,
 		x=x,
 		y=y,
@@ -325,6 +335,15 @@ function _drawplayer(p,x,y)
 end
 
 function updateplayer(p)
+	if p.cpu then
+		update_cpu(p)
+	else
+		update_human(p)
+	end
+	_updateplayer(p)
+end
+
+function update_human(p)
  -- set moving dir if any
 	if     btn(⬅️,p.n)then p.mx=-1
 	elseif btn(➡️,p.n)then p.mx=1
@@ -336,8 +355,6 @@ function updateplayer(p)
 	if btnp(❎,p.n) then
 		dobombbutton(p)
 	end
-	
-	_updateplayer(p)
 end
 
 function dobombbutton(p)
@@ -536,6 +553,13 @@ function getsolidon(solids,p)
  local px = round(p.x/8)*8
  local py = round(p.y/8)*8
  return getthing(solids,px,py)
+end
+
+-->8
+-- cpus
+
+function update_cpu(p)
+	p.mx = 1
 end
 
 -->8
@@ -926,13 +950,51 @@ function starttitle()
 	_draw=drawtitle
 	_update=updatetitle
 	
-	if not c then c=1 end
+	numcpus=0
+	show_player_menu()
+end
+
+function show_player_menu()
+	c=1
 	choices={
+		"1 player",
 		"2 players",
 		"3 players",
 		"4 players",
-		"quit",
 	}
+	done = function()
+		numplayers = c
+		
+		if numplayers < 4 then
+			show_cpu_menu()
+		else
+			choosemap()
+		end
+	end
+end
+
+function show_cpu_menu()
+	c=1
+	
+	cpustart=0
+	choices={}
+	if numplayers>1 then
+		cpustart=1
+		add(choices, "0 cpus")
+	end
+	for i = 1,4-numplayers do
+		local choice = tostr(i).." cpu"
+		if (i>1) choice = choice .. "s"
+		add(choices, choice)
+	end
+	done = function()
+		numcpus = c-cpustart
+	 choosemap()
+	end
+end
+
+function setupchoices(menu)
+	c=1
 end
 
 function drawtitle()
@@ -963,12 +1025,7 @@ function updatetitle()
 		c += 1
 		if (c > #choices) c = 1
 	elseif btnp(❎,0) then
-		if c == 4 then
-			stop()
-		else
-			numplayers = c+1
-			choosemap()
-		end
+		done()
 	end
 end
 
