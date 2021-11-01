@@ -564,45 +564,95 @@ end
 function makecpu(p)
 	return {
 		p=p,
+		t=0,
 	}
 end
 
 function update_cpu(p)
 	local cpu = p.cpu
 	
-	cpu.canbomb =
-		p.bombs_live < p.bombs_max
+	cpu.t+=1
+	if (cpu.t==30) cpu.t=0
+	
+	cpu.x = round(p.x/8)
+	cpu.y = round(p.y/8)
+	
+	local spots = getdanger(cpu)
+	if spots then
+		leavespots(cpu,spots)
+		return
+	end
+	
+	local item = getnearitem(cpu)
+	if item then
+		walktoward(cpu,item)
+		return
+	end
+	
+	local canbomb =	p.bombs_live
+	              < p.bombs_max
+	if not canbomb then
+	 -- just wait
+		return
+	end
+	
+	if nexttoplayer(cpu) or
+	   nexttobrick(cpu)
+	then
+		dobombbutton(p)
+		return
+	end
+	
+	local enemy = gettargetplayer(cpu)
+	if enemy then
+		walktoward(cpu, enemy)
+		return
+	end
+	
+	local brick = getnearbrick(cpu)
+	if brick then
+		walktoward(cpu, brick)
+		return
+	end
 	
 	--[[
-	
-	strategies:
-	
-	-- basic --
-	
-	if within range of live bomb
-		leave range
-	elseif item within 3 steps
-		walk toward item
-	elseif has bombs
-		if can access player
-			walk towards player
-			if 1 block away from player
-				lay bomb
-		else
-			walk towards nearest brick
-			if 1 block away from brick
-				lay bomb
-	
-	--]]
-	
-	p.mx = round(rnd(2)-1)
-	p.my = round(rnd(2)-1)
-	
-	
-	
-	if rnd() < 0.02 then
-		dobombbutton(p)
+	if cpu.t%5 == 0 then
+		p.mx = round(rnd(2)-1)
+		p.my = round(rnd(2)-1)
+		
+		if rnd() < 0.2 then
+			dobombbutton(p)
+		end
 	end
+	--]]
+end
+
+function getdanger(cpu)
+	return nil
+end
+
+function leavespots(cpu,spots)
+end
+
+function getnearitem(cpu)
+	return nil
+end
+
+function getnearbrick(cpu)
+end
+
+function gettargetplayer(cpu)
+end
+
+function nexttoplayer(cpu)
+	return false
+end
+
+function nexttobrick(cpu)
+	return false
+end
+
+function walktoward(cpu,item)
 end
 
 -->8
