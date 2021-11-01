@@ -250,8 +250,7 @@ invisible_timer = 7
 
 
 function makeplayer(n,x,y,cpu)
-	add(players,{
-		cpu=cpu,
+	local p = {
 		n=n,
 		x=x,
 		y=y,
@@ -273,7 +272,11 @@ function makeplayer(n,x,y,cpu)
 		invincible=false,
 		invincible_t=0,
 		invisible_t=0,
-	})
+	}
+	if cpu then
+		p.cpu = makecpu(p)
+	end
+	add(players,p)
 end
 
 function youreout(p)
@@ -558,8 +561,19 @@ end
 -->8
 -- cpus
 
+function makecpu(p)
+	return {
+		p=p,
+	}
+end
+
 function update_cpu(p)
-	p.mx = 1
+	p.mx = round(rnd(2)-1)
+	p.my = round(rnd(2)-1)
+	
+	if rnd() < 0.02 then
+		dobombbutton(p)
+	end
 end
 
 -->8
