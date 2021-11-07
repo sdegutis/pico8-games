@@ -577,6 +577,10 @@ function update_cpu(p)
 	cpu.x = round(p.x/8)
 	cpu.y = round(p.y/8)
 	
+	if cpu.t%5 == 0 then
+		recalculate_paths(cpu)
+	end
+	
 	local spots = getdanger(cpu)
 	if spots then
 		leavespots(cpu,spots)
@@ -639,6 +643,7 @@ function getnearitem(cpu)
 end
 
 function getnearbrick(cpu)
+	
 end
 
 function gettargetplayer(cpu)
@@ -654,6 +659,32 @@ end
 
 function walktoward(cpu,item)
 end
+
+function recalculate_paths(cpu)
+	local x = cpu.x
+	local y = cpu.y
+	
+	
+end
+
+--[[
+function getthing1(x,y)
+	x = flr(x/8)*8
+	y = flr(y/8)*8
+	return getthing(bricks,x,y)
+	    or getthing(bombs,x,y)
+	    or getthing(items,x,y)
+end
+
+function getthing(a,x,y)
+	for i=1,#a do
+		local z = a[i]
+		if z.x==x and z.y==y then
+			return z
+		end
+	end
+end
+--]]
 
 -->8
 -- bombs
