@@ -577,7 +577,7 @@ function update_cpu(p)
 	cpu.x = round(p.x/8)
 	cpu.y = round(p.y/8)
 	
-	if cpu.t%5 == 0 then
+	if cpu.t == 0 then
 		recalculate_paths(cpu)
 	end
 	
@@ -661,30 +661,66 @@ function walktoward(cpu,item)
 end
 
 function recalculate_paths(cpu)
-	local x = cpu.x
-	local y = cpu.y
+	local x = round(cpu.x/8)
+	local y = round(cpu.y/8)
 	
+	cpu.paths = {}
+	cpu.pathsseen = {}
+	trypath(cpu,{},x,y)
 	
-end
-
---[[
-function getthing1(x,y)
-	x = flr(x/8)*8
-	y = flr(y/8)*8
-	return getthing(bricks,x,y)
-	    or getthing(bombs,x,y)
-	    or getthing(items,x,y)
-end
-
-function getthing(a,x,y)
-	for i=1,#a do
-		local z = a[i]
-		if z.x==x and z.y==y then
-			return z
+	cpu.shortest = nil
+	local j = 0
+	while true do
+		for i=1,#cpu.paths do
+			local p = cpu.paths[i]
+			local step = p[j]
+			if step[1] == "thing" then
+				cpu.shortest = p
+			end
 		end
+		j += 1
+	end
+	
+	cls()
+	print(cpu.shortest)
+	stop()
+end
+
+function trypath(cpu,p,x,y)
+	if x < 1	or x > 15
+	or y < 1	or y > 15
+	or cpuseen(cpu,x,y)
+	then return end
+	
+	local paths = cpu.paths
+	local thing = cpugetthing(x,y)
+	local sp = {unpack(p)}
+	add(paths, sp)
+	if not thing or thing == cpu.p then
+		add(sp, {"empty",x,y})
+		trypath(cpu, sp, x,y+1)
+		trypath(cpu, sp, x,y-1)
+		trypath(cpu, sp, x+1,y)
+		trypath(cpu, sp, x-1,y)
+	else
+		add(sp, {"thing",x,y})
 	end
 end
---]]
+
+function cpuseen(cpu,x,y)
+	local coord = tostr(x)..','..tostr(y)
+	local seen = cpu.pathsseen[coord]
+	cpu.pathsseen[coord] = true
+	return seen
+end
+
+function cpugetthing(x,y)
+	return getthing(players,x,y)
+	    or getthing(bricks,x,y)
+	    or getthing(bombs,x,y)
+	    or getthing(flames,x,y)
+	    or getthing(items,x,y)
+end
 
 -->8
 -- bombs
