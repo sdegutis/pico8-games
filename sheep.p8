@@ -162,6 +162,10 @@ function updategame()
 		if e.tick then
 			e:tick()
 		end
+		
+		if e.movable then
+			trymoving(e)
+		end
 	end
 end
 
@@ -208,6 +212,10 @@ function makeplayer(x,y,n)
 		n=n,
 		draw=drawplayer,
 		tick=tickplayer,
+		movable=true,
+		mx=0,
+		my=0,
+		d=1,
 	}
 	add(entities,e)
 	add(players,e)
@@ -216,14 +224,26 @@ end
 function drawplayer(p)
 	local s = 12
 	if (p.n==2) s+=1
-	spr(s, p.x, p.y)
+	
+	local f = false
+	if (p.d < 0) f=true
+	
+	if p.moving then
+		if p.move_t % 10 <= 5 then
+			s += 16
+		end
+	end
+	
+	spr(s, p.x, p.y, 1, 1, f)
 end
 
 function tickplayer(p)
-	if (btn(⬅️,p.n-1)) p.x -= 1
-	if (btn(➡️,p.n-1)) p.x += 1
-	if (btn(⬆️,p.n-1)) p.y -= 1
-	if (btn(⬇️,p.n-1)) p.y += 1
+	p.mx=0
+	p.my=0
+	if (btn(⬅️,p.n-1)) p.mx=-1
+	if (btn(➡️,p.n-1)) p.mx= 1
+	if (btn(⬆️,p.n-1)) p.my=-1
+	if (btn(⬇️,p.n-1)) p.my= 1
 end
 
 -->8
@@ -240,6 +260,35 @@ end
 
 function drawsolid(e)
 	spr(e.s, e.x, e.y)
+end
+
+function trymoving(e)
+	e.moving = e.mx!=0 or e.my!=0
+	
+	if e.moving then
+		if not e.move_t then
+			e.move_t = 0
+		end
+		e.move_t += 1
+		if e.move_t == 30 then
+			e.move_t = 0
+		end
+	else
+		e.move_t=nil
+	end
+	
+	if e.mx != 0 then
+		e.d  = e.mx
+		e.x += e.mx
+		trymovingdir(e, e.mx,0)
+	end
+	if e.my != 0 then
+		e.y += e.my
+		trymovingdir(e, 0,e.my)
+	end
+end
+
+function trymovingdir(e,x,y)
 end
 
 __gfx__
