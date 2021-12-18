@@ -1,9 +1,11 @@
 pico-8 cartridge // http://www.pico-8.com
 version 33
 __lua__
+
+
 --[[
 
-team2:
+sheep.p8
 
 both girls are shepherds.
 the sheep are lost!
@@ -121,57 +123,123 @@ def
 
 --]]
 
-x=10
-y=10
-m=false
-
-function _update()
-	if (btn(➡️)) x+=1
-	if (btn(⬅️)) x-=1
-	if (btn(⬇️)) y+=1
-	if (btn(⬆️)) y-=1
-	
-	m = btn(⬆️) or btn(⬇️) or
-	    btn(⬅️) or btn(➡️)
+function _init()
+	level=1
+	startgame()
 end
 
-function _draw()
+function startgame()
+	entities={}
+	players={}
+	
+	_update = updategame
+	_draw = drawgame
+	
+	for y=0,31 do
+		for x=0,31 do
+			local s = mget(x,y)
+			if s==12 then
+				makeplayer(x,y,1)
+				replacetile(x,y)
+			elseif s==13 then
+				makeplayer(x,y,2)
+				replacetile(x,y)
+			elseif fget(s,0) then
+				makesolid(x,y,s)
+				replacetile(x,y)
+			end
+		end
+	end
+end
+
+function replacetile(x,y)
+	mset(x,y,0)
+end
+
+function updategame()
+	for i=1,#entities do
+		local e = entities[i]
+		if e.tick then
+			e:tick()
+		end
+	end
+end
+
+function drawgame()
 	cls(3)
+	
+	local cx = 0
+	local cy = 0
+	
+	for i=1,#players do
+		local p = players[i]
+		cx += p.x
+		cy += p.y
+	end
+	
+	cx /= #players
+	cy /= #players
+	
+	cx += 4
+	cy += 4
+	
+	camera(
+	 mid(0, cx-64, 256-128),
+	 mid(0, cy-64, 256-128)
+	)
+	
 	map()
 	
+	for i=1,#entities do
+		local e = entities[i]
+		e:draw()
+	end
+	
+	camera()
+end
+
+-->8
+-- players
+
+function makeplayer(x,y,n)
+	e={
+		x=x*8,
+		y=y*8,
+		n=n,
+		draw=drawplayer,
+		tick=tickplayer,
+	}
+	add(entities,e)
+	add(players,e)
+end
+
+function drawplayer(p)
 	local s = 12
-	local item=false
-	local sleep=false
-	
-	if btn(🅾️) then
-		s += 48
-		sleep=true
-	elseif btn(❎) then
-		s += 32
-		item=true
-	elseif m and time()%0.5 < 0.25 then
-		s += 16
-	end
-	
-	spr(s,x,y)
-	spr(s+1,x+20,y+20)
-	
-	if item then
-		spr(1,x+3,y)
-		spr(2,x+24,y+21)
-	end
-	
-	--[[
-	local s2 = 8
-	if (time()%0.5<.25) s2+=16
-	spr(s2,2,7)
-	--]]
-	
-	if sleep then
-		local n = flr((time()*4) % 4)
-		local slp=14 + (n*16)
-		spr(slp,x,y)
-	end
+	if (p.n==2) s+=1
+	spr(s, p.x, p.y)
+end
+
+function tickplayer(p)
+	if (btn(⬅️,p.n-1)) p.x -= 1
+	if (btn(➡️,p.n-1)) p.x += 1
+	if (btn(⬆️,p.n-1)) p.y -= 1
+	if (btn(⬇️,p.n-1)) p.y += 1
+end
+
+-->8
+-- entities
+
+function makesolid(x,y,s)
+	add(entities,{
+		x=x*8,
+		y=y*8,
+		s=s,
+		draw=drawsolid,
+	})
+end
+
+function drawsolid(e)
+	spr(e.s, e.x, e.y)
 end
 
 __gfx__
