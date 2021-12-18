@@ -209,7 +209,10 @@ function makeplayer(x,y,n)
 	e={
 		x=x*8,
 		y=y*8,
+		w=8,
+		h=8,
 		n=n,
+		isplayer=true,
 		draw=drawplayer,
 		tick=tickplayer,
 		movable=true,
@@ -253,7 +256,10 @@ function makesolid(x,y,s)
 	add(entities,{
 		x=x*8,
 		y=y*8,
+		w=8,
+		h=8,
 		s=s,
+		solid=true,
 		draw=drawsolid,
 	})
 end
@@ -289,6 +295,46 @@ function trymoving(e)
 end
 
 function trymovingdir(e,x,y)
+	for i=1,#entities do
+		local e2 = entities[i]
+		local how = collided(e,e2)
+		if how then
+			if how == 'players' then
+				e.x -= x
+				e.y -= y
+			elseif e2.solid then
+				e.x -= x
+				e.y -= y
+			end
+		end
+	end
+end
+
+function collided(e1,e2)
+ -- get their distance apart
+	local dx = abs(e1.x-e2.x)
+	local dy = abs(e1.y-e2.y)
+	
+	-- keep them both on screen
+	if e1.isplayer and e2.isplayer then
+		if dx > 128-e1.w or
+		   dy > 128-e1.h then
+			return 'players'
+		end
+	end
+	
+	-- if they're >10 px apart
+	-- they can't be colliding!!
+	if dx>10 or dy>10 then
+		return false
+	end
+	
+	-- if the diff between x1,x2
+	-- is less than max of widths
+	-- and same for height
+	-- then they collided
+	return dx < max(e1.w,e2.w)
+	   and dy < max(e1.h,e2.h)
 end
 
 __gfx__
