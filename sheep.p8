@@ -242,6 +242,8 @@ function drawgame()
 	abbey:draw()
 	
 	camera()
+	
+	--rectfill(0,0,10,10,1)
 end
 
 function round(n)
@@ -419,6 +421,7 @@ function act_bag(p,e)
 	elseif e.k=='apple' then
 		p.apples += 1
 		emap_remove(e)
+		return true
 	elseif e.k=='sheep' then
 		-- todo: if have apple,
 		-- it feeds them
@@ -765,7 +768,10 @@ end
 function tickapple(e)
 	if e.t then
 		e.t -= 1
-		if (e.t == 0) e.t=nil
+		if e.t == 0 then
+			e.t=nil
+			emap_move(e)
+		end
 		
 		e.y -= e.vy
 		e.vy -= 0.1
