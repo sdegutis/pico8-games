@@ -122,7 +122,7 @@ function startgame()
 				makebush(x,y,nil)
 				replacetile(x,y)
 			elseif s==35 then
-				makeseed(x,y)
+				makeseed(x,y,nil)
 				replacetile(x,y)
 			elseif s==57 then
 				makebush(x,y,makesheep)
@@ -254,6 +254,8 @@ function makeplayer(x,y,n)
 		collide=player_collide,
 		mx=0,
 		my=0,
+		act= (n==1 and act_stick
+	             or act_bag),
 		d=1,
 		offx=3,
 		offy=1,
@@ -307,11 +309,31 @@ function tickplayer(p)
     and btnp(❎,p.n-1)
 	then
 		p.act_t=15
-		act(p)
+		
+		local x=p.x+p.w+4
+		local y=p.y+4
+		local i = emapi({x=x,y=y})
+		local es = emap[i]
+		for e in all(es) do
+			if p:act(e) then
+				break
+			end
+		end
 	end
 end
 
 function player_collide(e,e2)
+	
+end
+
+function act_stick(p,e)
+	if e.k=='bush' then
+		hitbush(e)
+		return true
+	end
+end
+
+function act_bag(p,e)
 	
 end
 
@@ -535,7 +557,7 @@ end
 -->8
 -- bushes
 
-function makebush(x,y,seedfn)
+function makebush(x,y,seeder)
 	add_to_emap({
 		k='bush',
 		x=x*8,
@@ -544,11 +566,11 @@ function makebush(x,y,seedfn)
 		h=8,
 		solid=true,
 		draw=drawbush,
-		seedfn=seedfn,
+		seeder=seeder,
 	})
 end
 
-function makeseed(x,y)
+function makeseed(x,y,seeder)
 	add_to_emap({
 		k='seed',
 		x=x*8,
@@ -556,6 +578,7 @@ function makeseed(x,y)
 		w=8,
 		h=8,
 		t=30,
+		seeder=seeder,
 		draw=drawseed,
 		tick=tickseed,
 	})
@@ -563,6 +586,17 @@ end
 
 function drawbush(e)
 	spr(3,e.x,e.y)
+end
+
+function hitbush(e)
+	local x=e.x/8
+	local y=e.y/8
+	
+	emap_remove(e)
+	makeseed(x, y, e.seeder)
+	if e.seeder then
+		e.seeder(x, y)
+	end
 end
 
 function drawseed(e)
@@ -573,7 +607,9 @@ function tickseed(e)
 	e.t -= 1
 	if e.t == 0 then
 		emap_remove(e)
-		makebush(e.x/8, e.y/8, nil)
+		local x = e.x/8
+		local y = e.y/8
+		makebush(x,y, e.seeder)
 	end
 end
 
