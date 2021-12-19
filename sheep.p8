@@ -662,7 +662,7 @@ function makeseed(x,y,seeder)
 		y=y*8,
 		w=8,
 		h=8,
-		t=30,
+		t=30*20,
 		seeder=seeder,
 		draw=drawseed,
 		tick=tickseed,
