@@ -177,13 +177,7 @@ function add_to_emap(e)
 end
 
 function emap_maybe_move(e)
-	local i = emapi(e)
-	local j = e._emapi
-	if i != j then
-		del(emap[j], e)
-		add(emap[i], e)
-		e._emapi=i
-	end
+	add(emap_moves,e)
 end
 
 function replacetile(x,y)
@@ -204,6 +198,8 @@ function updategame()
 	emapx = min(flr(camx/8),127-16)
 	emapy = min(flr(camy/8),63 -16)
 	
+	emap_moves={}
+	
 	forvisents(function(e)
 		if e.tick then
 			e:tick()
@@ -215,6 +211,17 @@ function updategame()
 			end
 		end
 	end)
+	
+	for e in all(emap_moves) do
+		local i = emapi(e)
+		local j = e._emapi
+		if i != j then
+			del(emap[j], e)
+			add(emap[i], e)
+			e._emapi=i
+		end
+	end
+	
 end
 
 function drawgame()
@@ -235,10 +242,8 @@ function forvisents(fn)
 	for y=emapy,emapy+16 do
 		for x=emapx,emapx+16 do
 			local es = emap[y*128+x]
-			if es then
-				for i=1,#es do
-				 fn(es[i])
-				end
+			for i=1,#es do
+			 fn(es[i])
 			end
 		end
 	end
