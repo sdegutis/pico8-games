@@ -153,21 +153,21 @@ cx,cy = floor(px,py / 8)
 i = cx + cy*128
 --]]
 
-function emapi(e)
-	local cx = flr(e.x/8)
-	local cy = flr(e.y/8)
+function emapi(x,y)
+	local cx = flr(x/8)
+	local cy = flr(y/8)
 	return cy*128+cx
 end
 
 function add_to_emap(e)
-	local i = emapi(e)
+	local i = emapi(e.x, e.y)
 	add(emap[i], e)
 	e._emapi = i
 end
 
 function emap_move(e)
 	emap_remove(e)
-	local i = emapi(e)
+	local i = emapi(e.x, e.y)
 	add(emap[i], e)
 	e._emapi=i
 end
@@ -390,7 +390,7 @@ function tryaction(p)
 			for c in all(corners) do
 				local x = c[1] + x1*8
 				local y = c[2] + y1*8
-				local i = emapi({x=x,y=y})
+				local i = emapi(x,y)
 				for e in all(emap[i]) do
 					if hitinside(e,r) then
 						if p:act(e) then
@@ -525,8 +525,8 @@ function trymovingdir(e,x,y)
 	local y2 = cy + h2*ry2
 	
 	-- get emap indexes
-	local ei1=emapi({x=x1,y=y1})
-	local ei2=emapi({x=x2,y=y2})
+	local ei1=emapi(x1,y1)
+	local ei2=emapi(x2,y2)
 	
 	-- get entity arrays in emap
 	local ea1 = emap[ei1]
