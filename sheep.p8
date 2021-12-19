@@ -306,23 +306,7 @@ function tickplayer(p)
 end
 
 -->8
--- entities
-
-function makesolid(x,y,s)
-	add_to_emap({
-		x=x*8,
-		y=y*8,
-		w=8,
-		h=8,
-		s=s,
-		solid=true,
-		draw=drawsolid,
-	})
-end
-
-function drawsolid(e)
-	spr(e.s, e.x, e.y)
-end
+-- moving
 
 function trymoving(e)
 	e.moving = e.mx!=0 or e.my!=0
@@ -473,6 +457,25 @@ end
 
 function ticksheep(s)
 	s.mx = 1
+end
+
+-->8
+-- entities
+
+function makesolid(x,y,s)
+	add_to_emap({
+		x=x*8,
+		y=y*8,
+		w=8,
+		h=8,
+		s=s,
+		solid=true,
+		draw=drawsolid,
+	})
+end
+
+function drawsolid(e)
+	spr(e.s, e.x, e.y)
 end
 
 __gfx__
