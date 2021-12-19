@@ -182,7 +182,7 @@ function emap_maybe_move(e)
 	if i != j then
 		del(emap[j], e)
 		add(emap[i], e)
-		e._emapi=emap[i]
+		e._emapi=i
 	end
 end
 
