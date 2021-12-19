@@ -264,6 +264,7 @@ function makeplayer(x,y,n)
 		w=2,
 		h=6,
 		n=n,
+		speed=1,
 		draw=drawplayer,
 		tick=tickplayer,
 		movable=true,
@@ -330,19 +331,21 @@ function trymoving(e)
 	
 	if e.mx != 0 then
 		e.d  = e.mx
-		e.x += e.mx
+		
+		e.x += e.mx * e.speed
 		if trymovingdir(e, e.mx,0) then
 			emap_maybe_move(e)
 		else
-			e.x -= e.mx
+			e.x -= e.mx * e.speed
 		end
 	end
+	
 	if e.my != 0 then
-		e.y += e.my
+		e.y += e.my * e.speed
 		if trymovingdir(e, 0,e.my) then
 			emap_maybe_move(e)
 		else
-			e.y -= e.my
+			e.y -= e.my * e.speed
 		end
 	end
 end
@@ -453,6 +456,7 @@ function makesheep(x,y)
 		offx=2,
 		offy=3,
 		t=0,
+		speed=0.2,
 		movable=true,
 		draw=drawsheep,
 		tick=ticksheep,
