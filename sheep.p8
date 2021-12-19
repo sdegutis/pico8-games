@@ -652,8 +652,15 @@ end
 function hitsheep(e)
 	e.t = 60
 	e.speed=sheep_speed*3
-	e.mx = round(rnd(2))-1
-	e.my = round(rnd(2))-1
+	
+	local a,b
+	a = rnd()<0.5 and 1 or -1
+	b = rnd()<0.5 and 1 or -1
+	if (rnd()<0.5) b=0
+	if (rnd()<0.5) a,b = b,a
+	
+	e.mx = a
+	e.my = b
 end
 
 function sheep_collided(e,e2)
