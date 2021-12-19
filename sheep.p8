@@ -93,6 +93,8 @@ apple
 
 --]]
 
+debug=false
+
 function _init()
 	startgame()
 end
@@ -287,8 +289,10 @@ function drawplayer(p)
 	
 	spr(s, x,y, 1,1, f)
 	
-	color(1)
-	rect(p.x,p.y,p.x+p.w,p.y+p.h)
+	if debug then
+		color(1)
+		rect(p.x,p.y,p.x+p.w,p.y+p.h)
+	end
 	
 	if p.act_t then
 		local x = p.x + p.w/2 +
@@ -298,8 +302,10 @@ function drawplayer(p)
 		spr(p.n, x,y, 1,1, f)
 	end
 	
-	local x,y = hitxy(p)
-	pset(x,y,0)
+	if debug then
+		local x,y = hitxy(p)
+		pset(x,y,0)
+	end
 end
 
 function hitxy(p)
@@ -339,8 +345,11 @@ end
 function tryaction(p)
 	-- top left corner in pixels
 	local tlx,tly=hitxy(p)
-	print(tlx..","..tly)
-	flip()
+	
+	if debug then
+		print(tlx..","..tly)
+		flip()
+	end
 	
 	-- check 4-cell grid (sqr)
 	for x1=-1,1 do
@@ -362,11 +371,13 @@ end
 
 function hitinside(e,x,y)
 	
-	camera(camx,camy)
-	color(13)
-	rect(e.x,e.y,e.x+e.w,e.y+e.h)
-	flip()
-	camera()
+	if debug then
+		camera(camx,camy)
+		color(13)
+		rect(e.x,e.y,e.x+e.w,e.y+e.h)
+		flip()
+		camera()
+	end
 	
 	return x >= e.x
 	   and y >= e.y
@@ -565,8 +576,11 @@ function drawsheep(e)
 	local y=e.y-e.offy
 	
 	spr(s, x,y, 1,1, f)
-	color(2)
-	rect(e.x,e.y,e.x+e.w,e.y+e.h)
+	
+	if debug then
+		color(2)
+		rect(e.x,e.y,e.x+e.w,e.y+e.h)
+	end
 end
 
 function ticksheep(e)
