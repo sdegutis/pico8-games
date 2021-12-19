@@ -94,7 +94,7 @@ apple
 --]]
 
 _playerbox=false
-_hitbox=true
+_hitbox=false
 _hitsearch=false
 _sheepbox=false
 
@@ -298,23 +298,21 @@ function drawplayer(p)
 	end
 	
 	if _hitbox then
-		local x1,y1,x2,y2 = hitrect(p)
-		rect(x1,y1,x2,y2,0)
+		local r = hitrect(p)
+		rect(r.x,r.y,r.x+r.w,r.y+r.h,0)
 	end
 	
 	if p.act_t then
-		local x,y = hitrect(p)
-		spr(p.n, x-1,y, 1,1, f)
+		local r = hitrect(p)
+		spr(p.n, r.x-1,r.y, 1,1, f)
 	end
 end
 
 function hitrect(p)
-	local x1 = p.x + 3
-	if (p.d<0) x1 -= 10
-	local x2 = x1+5
-	local y1 = p.y+3
-	local y2 = y1+2
-	return x1,y1,x2,y2
+	local x = p.x + 3
+	if (p.d<0) x -= 10
+	local y = p.y+3
+	return {x=x,y=y,w=5,h=2}
 end
 
 function hitxy(p)
@@ -353,19 +351,25 @@ end
 
 function tryaction(p)
 	-- top left corner in pixels
-	local tlx,tly=hitxy(p)
+	local r=hitrect(p)
+	local corners = {
+		{r.x,r.y},     {r.x+r.w,r.y},
+		{r.x,r.y+r.h}, {r.x+r.w,r.y+r.h},
+	}
 	
 	-- check 4-cell grid (sqr)
 	for x1=-1,0 do
 		for y1=-1,0 do
-			local x=tlx+x1*8
-			local y=tly+y1*8
-			local i = emapi({x=x,y=y})
-			for e in all(emap[i]) do
-				if hitinside(e,tlx,tly) then
-					if p:act(e) then
-						p.act_t=nil
-						return
+			for c in all(corners) do
+				local x = c[1] + x1*8
+				local y = c[2] + y1*8
+				local i = emapi({x=x,y=y})
+				for e in all(emap[i]) do
+					if hitinside(e,r) then
+						if p:act(e) then
+							p.act_t=nil
+							return
+						end
 					end
 				end
 			end
@@ -373,8 +377,7 @@ function tryaction(p)
 	end
 end
 
-function hitinside(e,x,y)
-	
+function hitinside(e,r)
 	if _hitsearch then
 		camera(camx,camy)
 		color(13)
@@ -383,10 +386,7 @@ function hitinside(e,x,y)
 		camera()
 	end
 	
-	return x >= e.x
-	   and y >= e.y
-	   and x < e.x + e.w
-	   and y < e.y + e.h
+	return collided(e,r)
 end
 
 function player_collide(e,e2)
