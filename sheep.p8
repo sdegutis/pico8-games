@@ -298,8 +298,10 @@ function makeplayer(x,y,n)
 		collide=player_collide,
 		mx=0,
 		my=0,
-		act= (n==1 and act_stick
-	             or act_bag),
+		act  = (n==1 and act_stick
+	               or act_bag),
+		act2 = (n==1 and act_stick
+	               or act_throw),
 		d=1,
 		offx=3,
 		offy=1,
@@ -438,10 +440,7 @@ function act_bag(p,e)
 			return true
 		end
 	elseif e.k=='sheep' then
-		-- todo: if have apple,
-		-- it feeds them
-		-- otherwise it hits them?
-		--hitsheep(e)
+		hitsheep(e)
 		return true
 	end
 end
