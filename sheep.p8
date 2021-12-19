@@ -388,19 +388,14 @@ function tryaction(p)
 	}
 	
 	-- check 4-cell grid (sqr)
-	for x1=-1,0 do
-		for y1=-1,0 do
-			for c in all(corners) do
-				local x = c[1] + x1*8
-				local y = c[2] + y1*8
-				local i = emapi(x,y)
-				for e in all(emap[i]) do
-					if hitinside(e,r) then
-						if p:act(e) then
-							p.act_t=nil
-							return
-						end
-					end
+	for c in all(corners) do
+		local x,y = unpack(c)
+		local i = emapi(x,y)
+		for e in all(emap[i]) do
+			if hitinside(e,r) then
+				if p:act(e) then
+					p.act_t=nil
+					return
 				end
 			end
 		end
