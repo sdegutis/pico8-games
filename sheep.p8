@@ -258,15 +258,16 @@ end
 
 function makeplayer(x,y,n)
 	e={
+		k='player',
 		x=x*8,
 		y=y*8,
 		w=2,
 		h=6,
 		n=n,
-		isplayer=true,
 		draw=drawplayer,
 		tick=tickplayer,
 		movable=true,
+		collide=player_collide,
 		mx=0,
 		my=0,
 		d=1,
@@ -303,6 +304,10 @@ function tickplayer(p)
 	if (btn(➡️,p.n-1)) p.mx= 1
 	if (btn(⬆️,p.n-1)) p.my=-1
 	if (btn(⬇️,p.n-1)) p.my= 1
+end
+
+function player_collide(e,e2)
+	
 end
 
 -->8
@@ -345,7 +350,7 @@ end
 function trymovingdir(e,x,y)
 	
 	-- keep them both on screen
-	if e.isplayer then
+	if e.k=='player' then
 		local e1,e2 = sarah,abbey
 		local dx = abs(e1.x-e2.x)
 		local dy = abs(e1.y-e2.y)
@@ -397,6 +402,8 @@ function trymovingdir(e,x,y)
 			if collided(e,e2) then
 				if e2.solid then
 					return false
+				else
+					e:collide(e2)
 				end
 			end
 		end
@@ -438,6 +445,7 @@ end
 
 function makesheep(x,y)
 	add_to_emap({
+		k='sheep',
 		x=x*8,
 		y=y*8,
 		w=8,
@@ -445,6 +453,7 @@ function makesheep(x,y)
 		movable=true,
 		draw=drawsheep,
 		tick=ticksheep,
+		collide=sheep_collided,
 		mx=0,
 		my=0,
 		d=1,
@@ -459,11 +468,15 @@ function ticksheep(s)
 	s.mx = 1
 end
 
+function sheep_collided(e,e2)
+end
+
 -->8
 -- entities
 
 function makesolid(x,y,s)
 	add_to_emap({
+		k='solid',
 		x=x*8,
 		y=y*8,
 		w=8,
