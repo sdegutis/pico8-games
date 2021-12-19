@@ -389,8 +389,7 @@ function tryaction(p)
 	
 	-- check 4-cell grid (sqr)
 	for c in all(corners) do
-		local x,y = unpack(c)
-		local i = emapi(x,y)
+		local i = emapi(unpack(c))
 		for e in all(emap[i]) do
 			if hitinside(e,r) then
 				if p:act(e) then
