@@ -248,12 +248,12 @@ function drawgame()
 	rectfill(0,0,127,7,0)
 	
 	-- apples
-	print(tostr(abbey.apples),47,2,7)
-	spr(7,50,-1)
+	print(tostr(abbey.apples),40,2,7)
+	spr(7,30,-1)
 	
 	-- sheep
-	print(tostr(numsheep),77,2,7)
-	spr(9,80,-1)
+	print(tostr(numsheep),80,2,7)
+	spr(9,70,-1)
 end
 
 function round(n)
@@ -599,6 +599,7 @@ function makesheep(x,y)
 		my=0,
 		d=1,
 	})
+	numsheep += 1
 end
 
 function drawsheep(e)
