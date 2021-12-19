@@ -379,7 +379,7 @@ end
 -- sheep
 
 function makesheep(x,y)
-	add(entities,{
+	add_to_emap({
 		x=x*8,
 		y=y*8,
 		w=8,
