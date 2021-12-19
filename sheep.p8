@@ -186,14 +186,17 @@ function updategame()
 	camx=mid(0, cx-64, 8*128-128)
 	camy=mid(0, cy-64, 8* 64-128)
 	
+	local cellx=flr(camx/8)
+	local celly=flr(camy/8)
+	
 	-- save emap cell top-left
-	emapx = min(flr(camx/8),127-16)
-	emapy = min(flr(camy/8),63 -16)
+	emapx = mid(1,cellx,127-16)
+	emapy = mid(1,celly,63 -16)
 	
 	emap_moves={}
 	
-	for y=emapy,emapy+16 do
-		for x=emapx,emapx+16 do
+	for y=emapy-1,emapy+16 do
+		for x=emapx-1,emapx+16 do
 			local es = emap[y*128+x]
 			for e in all(es) do
 				if e.tick then
@@ -216,8 +219,8 @@ function drawgame()
 	
 	map()
 	
-	for y=emapy,emapy+16 do
-		for x=emapx,emapx+16 do
+	for y=emapy-1,emapy+16 do
+		for x=emapx-1,emapx+16 do
 			local es = emap[y*128+x]
 			for e in all(es) do
 				e:draw()
