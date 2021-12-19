@@ -177,7 +177,9 @@ function add_to_emap(e)
 end
 
 function emap_maybe_move(e)
-	add(emap_moves,e)
+	if count(emap_moves,e)==0 then
+		add(emap_moves,e)
+	end
 end
 
 function replacetile(x,y)
@@ -265,7 +267,7 @@ function makeplayer(x,y,n)
 		my=0,
 		d=1,
 		offx=3,
-		offy=2,
+		offy=1,
 	}
 	add_to_emap(e)
 	return e
@@ -333,23 +335,38 @@ function trymoving(e)
 		e.move_t=nil
 	end
 	
-	local ok=false
 	if e.mx != 0 then
 		e.d  = e.mx
 		e.x += e.mx
-		ok=trymovingdir(e, e.mx,0)
+		if trymovingdir(e, e.mx,0) then
+			emap_maybe_move(e)
+		else
+			e.x -= e.mx
+		end
 	end
 	if e.my != 0 then
 		e.y += e.my
-		ok=trymovingdir(e, 0,e.my)
-	end
-	
-	if ok then
-		emap_maybe_move(e)
+		if trymovingdir(e, 0,e.my) then
+			emap_maybe_move(e)
+		else
+			e.y -= e.my
+		end
 	end
 end
 
 function trymovingdir(e,x,y)
+	
+	-- keep them both on screen
+	if e.isplayer then
+		local e1,e2 = sarah,abbey
+		local dx = abs(e1.x-e2.x)
+		local dy = abs(e1.y-e2.y)
+		if dx > 128-e1.w or
+		   dy > 128-e1.h then
+			return false
+		end
+	end
+	
  -- get relative points
  -- top-l,   bottom-l, or
  -- right-t, right-b,  etc
@@ -391,8 +408,6 @@ function trymovingdir(e,x,y)
 		for e2 in all(ea) do
 			if collided(e,e2) then
 				if e2.solid then
-					e.x -= x
-					e.y -= y
 					return false
 				end
 			end
@@ -403,19 +418,12 @@ function trymovingdir(e,x,y)
 end
 
 function collided(e1,e2)
+ -- can't collide with yourself
 	if (e1==e2) return false
 	
  -- get their distance apart
 	local dx = abs(e1.x-e2.x)
 	local dy = abs(e1.y-e2.y)
-	
-	-- keep them both on screen
-	if e1.isplayer and e2.isplayer then
-		if dx > 128-e1.w or
-		   dy > 128-e1.h then
-			return true
-		end
-	end
 	
 	-- if they're >10 px apart
 	-- they can't be colliding!!
