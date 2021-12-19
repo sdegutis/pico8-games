@@ -352,8 +352,8 @@ function tryaction(p)
 	end
 	
 	-- check 4-cell grid (sqr)
-	for x1=-1,1 do
-		for y1=-1,1 do
+	for x1=-1,0 do
+		for y1=-1,0 do
 			local x=tlx+x1*8
 			local y=tly+y1*8
 			local i = emapi({x=x,y=y})
