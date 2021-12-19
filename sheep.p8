@@ -327,6 +327,7 @@ function trymoving(e)
 end
 
 function trymovingdir(e,x,y)
+	do return end
 	for i=1,#entities do
 		local e2 = entities[i]
 		if collided(e,e2) then
