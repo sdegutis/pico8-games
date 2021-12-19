@@ -287,6 +287,7 @@ function drawplayer(p)
 	
 	spr(s, x,y, 1,1, f)
 	
+	color(1)
 	rect(p.x,p.y,p.x+p.w,p.y+p.h)
 	
 	if p.act_t then
@@ -338,6 +339,8 @@ end
 function tryaction(p)
 	-- top left corner in pixels
 	local tlx,tly=hitxy(p)
+	print(tlx..","..tly)
+	flip()
 	
 	-- check 4-cell grid (sqr)
 	for x1=0,1 do
@@ -562,6 +565,7 @@ function drawsheep(e)
 	local y=e.y-e.offy
 	
 	spr(s, x,y, 1,1, f)
+	color(2)
 	rect(e.x,e.y,e.x+e.w,e.y+e.h)
 end
 
