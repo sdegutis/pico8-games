@@ -97,7 +97,7 @@ apple
 
 update game:
 
-loop through all entities
+loop through visible entities
 
 if e.tick
  e.tick()
@@ -128,7 +128,7 @@ function _init()
 end
 
 function startgame()
-	entities={}
+	emap={}
 	
 	_update = updategame
 	_draw = drawgame
@@ -151,6 +151,24 @@ function startgame()
 			end
 		end
 	end
+end
+
+--[[
+emap is 128 x 64 grid (0-base)
+flattened by row-first
+each element is nil or ent[]
+cx,cy = floor(px,py / 8)
+i = cx + cy*128
+--]]
+
+function add_to_emap(e)
+	local cx = flr(e.x/8)
+	local cy = flr(e.y/8)
+	local i = cy*128+cx
+	
+	if (not emap[i]) emap[i]={}
+	add(emap[i], e)
+	e._slot = emap[i]
 end
 
 function replacetile(x,y)
@@ -221,7 +239,7 @@ function makeplayer(x,y,n)
 		offx=3,
 		offy=2,
 	}
-	add(entities,e)
+	add_to_emap(e)
 	return e
 end
 
@@ -257,7 +275,7 @@ end
 -- entities
 
 function makesolid(x,y,s)
-	add(entities,{
+	add_to_emap({
 		x=x*8,
 		y=y*8,
 		w=8,
