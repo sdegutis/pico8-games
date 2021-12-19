@@ -350,18 +350,61 @@ function trymoving(e)
 end
 
 function trymovingdir(e,x,y)
-	for i=1,#entities do
-		local e2 = entities[i]
-		if collided(e,e2) then
-			e.x -= x
-			e.y -= y
-			return false
+ -- get relative points
+ -- top-l,   bottom-l, or
+ -- right-t, right-b,  etc
+	local rx1,rx2=x,x
+	local ry1,ry2=y,y
+	if x==0 then
+		rx1=-1 rx2=1
+	elseif y==0 then
+		ry1=-1 ry2=1
+	end
+	
+	-- get center of entity
+	local w2 = e.w/2
+	local h2 = e.h/2
+	local cx = e.x + w2
+	local cy = e.y + h2
+	
+	-- get both absolute points
+	local x1 = cx + w2*rx1
+	local x2 = cx + w2*rx2
+	local y1 = cy + h2*ry1
+	local y2 = cy + h2*ry2
+	
+	-- get emap indexes
+	local ei1=emapi({x=x1,y=y1})
+	local ei2=emapi({x=x2,y=y2})
+	
+	-- get entity arrays in emap
+	local ea1 = emap[ei1]
+	local ea2 = emap[ei2]
+	
+	-- combine into one array
+	local eas = {ea1}
+	if (ei1 != ei2) add(eas,ea2)
+	
+	-- loop through each array
+	for ea in all(eas) do
+		-- loop through each entity
+		for e2 in all(ea) do
+			if collided(e,e2) then
+				if e2.solid then
+					e.x -= x
+					e.y -= y
+					return false
+				end
+			end
 		end
 	end
+	
 	return true
 end
 
 function collided(e1,e2)
+	if (e1==e2) return false
+	
  -- get their distance apart
 	local dx = abs(e1.x-e2.x)
 	local dy = abs(e1.y-e2.y)
