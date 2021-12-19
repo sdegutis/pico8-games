@@ -429,9 +429,11 @@ function act_bag(p,e)
 		makeapple(e.x/8, e.y/8, p.d)
 		return true
 	elseif e.k=='apple' then
-		p.apples += 1
-		emap_remove(e)
-		return true
+		if p.apples < 9 then
+			p.apples += 1
+			emap_remove(e)
+			return true
+		end
 	elseif e.k=='sheep' then
 		-- todo: if have apple,
 		-- it feeds them
@@ -779,14 +781,15 @@ function tickapple(e)
 	if e.t then
 		e.t -= 1
 		if e.t == 0 then
-			e.t=nil
 			emap_move(e)
+		elseif e.t > 0 then
+			e.y -= e.vy
+			e.vy -= 0.1
+			
+			e.x -= e.d
+		elseif e.t == -(30*20) then
+			emap_remove(e)
 		end
-		
-		e.y -= e.vy
-		e.vy -= 0.1
-		
-		e.x -= e.d
 	end
 end
 
