@@ -285,7 +285,11 @@ function drawplayer(p)
 	spr(s, x,y, 1,1, f)
 	
 	if p.act_t then
-		spr(p.n, p.x+1, p.y)
+		local x = p.x + p.w/2 +
+		           (4 * p.d) - 4
+		local y = p.y
+		
+		spr(p.n, x,y, 1,1, f)
 	end
 end
 
@@ -299,27 +303,32 @@ function tickplayer(p)
 	if (btn(⬇️,p.n-1)) p.my= 1
 	
 	-- action timer
-	if p.act_t then
-		p.act_t -= 1
-		if (p.act_t==0) p.act_t=nil
-	end
-	
-	-- using action
 	if not p.act_t
     and btnp(❎,p.n-1)
 	then
-		p.act_t=15
-		
-		local x=p.x+p.w+4
-		local y=p.y+4
-		local i = emapi({x=x,y=y})
-		local es = emap[i]
-		for e in all(es) do
-			if p:act(e) then
-				break
+		p.act_t=30
+	end
+	
+	-- try action
+	if p.act_t then
+		p.act_t -= 1
+		if (p.act_t==0) then
+			p.act_t=nil
+		elseif p.act_t > 5 then
+			-- give it 5 ticks to draw
+			local x=p.x+p.w/2+(4*p.d)
+			local y=p.y+4
+			local i = emapi({x=x,y=y})
+			local es = emap[i]
+			for e in all(es) do
+				if p:act(e) then
+					p.act_t=5
+					break
+				end
 			end
 		end
 	end
+	
 end
 
 function player_collide(e,e2)
@@ -606,6 +615,17 @@ end
 function tickseed(e)
 	e.t -= 1
 	if e.t == 0 then
+		-- todo:
+		-- only seed if player
+		-- is not in radius.
+		-- this will give us
+		-- radius checking code
+		-- which will help
+		-- with sheep and wolves too
+		-- (and maybe bees.)
+		-- (maybe they chase you.)
+		-- (who knows.)
+		
 		emap_remove(e)
 		local x = e.x/8
 		local y = e.y/8
