@@ -253,6 +253,14 @@ function drawgame()
 	camera()
 end
 
+function round(n)
+	if n % 1 < 0.5 then
+		return flr(n)
+	else
+		return ceil(n)
+	end
+end
+
 -->8
 -- players
 
@@ -487,11 +495,19 @@ end
 function ticksheep(e)
 	-- choose new action when idle
 	if e.t == 0 then
-		-- change action in 2-3 sec
-		e.t = flr((rnd(1)+2)*30)
+		local still=rnd()<0.5
 		
-		e.mx = flr(rnd(2))-1
-		e.my = flr(rnd(2))-1
+		if still then
+			-- stand still for 2-3 sec
+			e.t = flr((rnd(1)+2)*30)
+			e.mx = 0
+			e.my = 0
+		else
+			-- walk for 1 sec
+			e.t = 30
+			e.mx = round(rnd(2))-1
+			e.my = round(rnd(2))-1
+		end
 	else
 		e.t -= 1
 	end
