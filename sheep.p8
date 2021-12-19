@@ -135,6 +135,9 @@ function startgame()
 	
 	for y=0,63 do
 		for x=0,127 do
+			local i = y*128+x
+			emap[i] = {}
+			
 			local s = mget(x,y)
 			if s==12 then
 				sarah=makeplayer(x,y,1)
@@ -156,19 +159,31 @@ end
 --[[
 emap is 128 x 64 grid (0-base)
 flattened by row-first
-each element is nil or ent[]
+each element is ent[]
 cx,cy = floor(px,py / 8)
 i = cx + cy*128
 --]]
 
-function add_to_emap(e)
+function emapi(e)
 	local cx = flr(e.x/8)
 	local cy = flr(e.y/8)
-	local i = cy*128+cx
-	
-	if (not emap[i]) emap[i]={}
+	return cy*128+cx
+end
+
+function add_to_emap(e)
+	local i = emapi(e)
 	add(emap[i], e)
-	e._slot = emap[i]
+	e._emapi = i
+end
+
+function emap_maybe_move(e)
+	local i = emapi(e)
+	local j = e._emapi
+	if i != j then
+		del(emap[j], e)
+		add(emap[i], e)
+		e._emapi=emap[i]
+	end
 end
 
 function replacetile(x,y)
@@ -315,26 +330,33 @@ function trymoving(e)
 		e.move_t=nil
 	end
 	
+	local ok=false
 	if e.mx != 0 then
 		e.d  = e.mx
 		e.x += e.mx
-		trymovingdir(e, e.mx,0)
+		ok=trymovingdir(e, e.mx,0)
 	end
 	if e.my != 0 then
 		e.y += e.my
-		trymovingdir(e, 0,e.my)
+		ok=trymovingdir(e, 0,e.my)
+	end
+	
+	if ok then
+		emap_maybe_move(e)
 	end
 end
 
 function trymovingdir(e,x,y)
-	do return end
+	do return true end
 	for i=1,#entities do
 		local e2 = entities[i]
 		if collided(e,e2) then
 			e.x -= x
 			e.y -= y
+			return false
 		end
 	end
+	return true
 end
 
 function collided(e1,e2)
