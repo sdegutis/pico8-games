@@ -194,7 +194,7 @@ function updategame()
 	
 	-- save camera pixel top-left
 	camx=mid(0, cx-64,   8*128-128)
-	camy=mid(0, cy-64+4, 8* 64-128)
+	camy=mid(0, cy-64+4, 8* 64-120)
 	
 	local cellx=flr(camx/8)
 	local celly=flr(camy/8)
@@ -229,7 +229,7 @@ function drawgame()
 	
 	map()
 	
-	for y=emapy-1,emapy+15 do
+	for y=emapy-1,emapy+16 do
 		for x=emapx-1,emapx+16 do
 			local es = emap[y*128+x]
 			for e in all(es) do
