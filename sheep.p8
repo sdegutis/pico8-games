@@ -136,7 +136,7 @@ function startgame()
 	_draw = drawgame
 	
 	for y=0,63 do
-		for x=0,255 do
+		for x=0,127 do
 			local s = mget(x,y)
 			if s==12 then
 				makeplayer(x,y,1)
