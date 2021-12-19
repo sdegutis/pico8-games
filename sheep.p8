@@ -287,6 +287,8 @@ function drawplayer(p)
 	
 	spr(s, x,y, 1,1, f)
 	
+	rect(p.x,p.y,p.x+p.w,p.y+p.h)
+	
 	if p.act_t then
 		local x = p.x + p.w/2 +
 		           (4 * p.d) - 4
@@ -320,15 +322,7 @@ function tickplayer(p)
 		if (p.act_t==0) then
 			p.act_t=nil
 		else
-			local x,y=hitxy(p)
-			local i = emapi({x=x,y=y})
-			local es = emap[i]
-			for e in all(es) do
-				if p:act(e) then
-					p.act_t=nil
-					break
-				end
-			end
+			tryaction(p)
 		end
 	end
 	
@@ -339,6 +333,42 @@ function tickplayer(p)
 		p.act_t=10
 	end
 	
+end
+
+function tryaction(p)
+	-- top left corner in pixels
+	local tlx,tly=hitxy(p)
+	
+	-- check 4-cell grid (sqr)
+	for x1=0,1 do
+		for y1=0,1 do
+			local x=tlx+x1*8
+			local y=tly+y1*8
+			local i = emapi({x=x,y=y})
+			for e in all(emap[i]) do
+				if hitinside(e,tlx,tly) then
+					if p:act(e) then
+						p.act_t=nil
+						return
+					end
+				end
+			end
+		end
+	end
+end
+
+function hitinside(e,x,y)
+	
+	camera(camx,camy)
+	color(13)
+	rect(e.x,e.y,e.x+e.w,e.y+e.h)
+	flip()
+	camera()
+	
+	return x >= e.x
+	   and y >= e.y
+	   and x < e.x + e.w
+	   and y < e.y + e.h
 end
 
 function player_collide(e,e2)
