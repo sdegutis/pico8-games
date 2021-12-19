@@ -130,7 +130,6 @@ end
 
 function startgame()
 	entities={}
-	players={}
 	
 	_update = updategame
 	_draw = drawgame
@@ -139,10 +138,10 @@ function startgame()
 		for x=0,127 do
 			local s = mget(x,y)
 			if s==12 then
-				makeplayer(x,y,1)
+				sarah=makeplayer(x,y,1)
 				replacetile(x,y)
 			elseif s==13 then
-				makeplayer(x,y,2)
+				abbey=makeplayer(x,y,2)
 				replacetile(x,y)
 			elseif s==9 then
 				makesheep(x,y)
@@ -175,25 +174,13 @@ end
 function drawgame()
 	cls(3)
 	
-	local cx = 0
-	local cy = 0
+	local cx=(sarah.x+abbey.x)/2+4
+	local cy=(sarah.y+abbey.y)/2+4
 	
-	for i=1,#players do
-		local p = players[i]
-		cx += p.x
-		cy += p.y
-	end
+	local camx=mid(0, cx-64, 256-128)
+	local camy=mid(0, cy-64, 256-128)
 	
-	cx /= #players
-	cy /= #players
-	
-	cx += 4
-	cy += 4
-	
-	camera(
-	 mid(0, cx-64, 256-128),
-	 mid(0, cy-64, 256-128)
-	)
+	camera(camx,camy)
 	
 	map()
 	
@@ -224,7 +211,7 @@ function makeplayer(x,y,n)
 		d=1,
 	}
 	add(entities,e)
-	add(players,e)
+	return e
 end
 
 function drawplayer(p)
