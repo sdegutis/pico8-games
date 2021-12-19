@@ -145,36 +145,31 @@ cx,cy = floor(px,py / 8)
 i = cx + cy*128
 --]]
 
-function emapi(x,y)
-	local cx = flr(x/8)
-	local cy = flr(y/8)
+function emapi(e)
+	local cx = flr(e.x/8)
+	local cy = flr(e.y/8)
 	return cy*128+cx
 end
 
 function add_to_emap(e)
-	local i = emapi(e.x, e.y)
+	local i = emapi(e)
 	add(emap[i], e)
-	e._slots = {emap[i]}
+	e._emapi = i
 end
 
 function emap_move(e)
-	emap_remove(e)
-	
-	for x1=0,1 do
-		for y1=0,1 do
-			local cx = e.x + e.w*x1
-			local cy = e.y + e.h*y1
-			local i = emapi(cx, cy)
-			add(emap[i], e)
-			add(e._slots, emap[i])
-		end
+	local i = emapi(e)
+	local j = e._emapi
+	if i != j then
+		del(emap[j], e)
+		add(emap[i], e)
+		e._emapi=i
 	end
 end
 
 function emap_remove(e)
-	for slot in all(e._slots) do
-		del(slot,e)
-	end
+	local es = emap[e._emapi]
+	del(es, e)
 end
 
 function replacetile(x,y)
@@ -200,23 +195,18 @@ function updategame()
 	emapx = mid(1,cellx,127-16)
 	emapy = mid(1,celly,63 -16)
 	
-	local updated={}
+	emap_moves={}
 	
 	for y=emapy-1,emapy+16 do
 		for x=emapx-1,emapx+16 do
 			local es = emap[y*128+x]
 			for e in all(es) do
-				if not updated[e] then
-					updated[e]=true
-					
-					if e.tick then
-						e:tick()
-					end
-					
-					if e.movable then
-						trymoving(e)
-					end
-					
+				if e.tick then
+					e:tick()
+				end
+				
+				if e.movable then
+					trymoving(e)
 				end
 			end
 		end
@@ -231,17 +221,11 @@ function drawgame()
 	
 	map()
 	
-	local drawn={}
-	
 	for y=emapy-1,emapy+16 do
 		for x=emapx-1,emapx+16 do
 			local es = emap[y*128+x]
 			for e in all(es) do
-				if not drawn[e] then
-					drawn[e]=true
-					
-					e:draw()
-				end
+				e:draw()
 			end
 		end
 	end
@@ -372,7 +356,7 @@ function tryaction(p)
 		for y1=-1,1 do
 			local x=tlx+x1*8
 			local y=tly+y1*8
-			local i = emapi(x,y)
+			local i = emapi({x=x,y=y})
 			for e in all(emap[i]) do
 				if hitinside(e,tlx,tly) then
 					if p:act(e) then
@@ -495,8 +479,8 @@ function trymovingdir(e,x,y)
 	local y2 = cy + h2*ry2
 	
 	-- get emap indexes
-	local ei1=emapi(x1,y1)
-	local ei2=emapi(x2,y2)
+	local ei1=emapi({x=x1,y=y1})
+	local ei2=emapi({x=x2,y=y2})
 	
 	-- get entity arrays in emap
 	local ea1 = emap[ei1]
@@ -506,20 +490,15 @@ function trymovingdir(e,x,y)
 	local eas = {ea1}
 	if (ei1 != ei2) add(eas,ea2)
 	
-	local seen={}
-	
 	-- loop through each array
 	for ea in all(eas) do
 		-- loop through each entity
 		for e2 in all(ea) do
-			if not seen[e2] then
-				seen[e2]=true
-				if collided(e,e2) then
-					if e2.solid then
-						return false
-					else
-						e:collide(e2)
-					end
+			if collided(e,e2) then
+				if e2.solid then
+					return false
+				else
+					e:collide(e2)
 				end
 			end
 		end
@@ -679,7 +658,7 @@ function makeseed(x,y,seeder)
 		y=y*8,
 		w=8,
 		h=8,
-		t=30*20,
+		t=30,
 		seeder=seeder,
 		draw=drawseed,
 		tick=tickseed,
