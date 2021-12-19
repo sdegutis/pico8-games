@@ -105,6 +105,8 @@ end
 function startgame()
 	emap={}
 	
+	numsheep=0
+	
 	_update = updategame
 	_draw = drawgame
 	
@@ -243,9 +245,15 @@ function drawgame()
 	
 	camera()
 	
-	rectfill(0,0,127,7,1)
+	rectfill(0,0,127,7,0)
 	
-	--rectfill(0,0,10,10,1)
+	-- apples
+	print(tostr(abbey.apples),47,2,7)
+	spr(7,50,-1)
+	
+	-- sheep
+	print(tostr(numsheep),77,2,7)
+	spr(9,80,-1)
 end
 
 function round(n)
