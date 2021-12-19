@@ -506,15 +506,20 @@ function trymovingdir(e,x,y)
 	local eas = {ea1}
 	if (ei1 != ei2) add(eas,ea2)
 	
+	local seen={}
+	
 	-- loop through each array
 	for ea in all(eas) do
 		-- loop through each entity
 		for e2 in all(ea) do
-			if collided(e,e2) then
-				if e2.solid then
-					return false
-				else
-					e:collide(e2)
+			if not seen[e2] then
+				seen[e2]=true
+				if collided(e,e2) then
+					if e2.solid then
+						return false
+					else
+						e:collide(e2)
+					end
 				end
 			end
 		end
@@ -674,7 +679,7 @@ function makeseed(x,y,seeder)
 		y=y*8,
 		w=8,
 		h=8,
-		t=30,
+		t=30*20,
 		seeder=seeder,
 		draw=drawseed,
 		tick=tickseed,
