@@ -351,12 +351,6 @@ function hitrect(p)
 	return {x=x,y=y,w=5,h=2}
 end
 
-function hitxy(p)
-	local x=p.x+p.w/2+(6*p.d)
-	local y=p.y+4
-	return x,y
-end
-
 function tickplayer(p)
 	-- moving
 	p.mx=0
