@@ -329,15 +329,9 @@ end
 function trymovingdir(e,x,y)
 	for i=1,#entities do
 		local e2 = entities[i]
-		local how = collided(e,e2)
-		if how then
-			if how == 'players' then
-				e.x -= x
-				e.y -= y
-			elseif e2.solid then
-				e.x -= x
-				e.y -= y
-			end
+		if collided(e,e2) then
+			e.x -= x
+			e.y -= y
 		end
 	end
 end
@@ -351,7 +345,7 @@ function collided(e1,e2)
 	if e1.isplayer and e2.isplayer then
 		if dx > 128-e1.w or
 		   dy > 128-e1.h then
-			return 'players'
+			return true
 		end
 	end
 	
