@@ -93,7 +93,10 @@ apple
 
 --]]
 
-debug=false
+_playerbox=false
+_hitbox=true
+_hitsearch=false
+_sheepbox=false
 
 function _init()
 	startgame()
@@ -289,7 +292,7 @@ function drawplayer(p)
 	
 	spr(s, x,y, 1,1, f)
 	
-	if debug then
+	if _playerbox then
 		color(1)
 		rect(p.x,p.y,p.x+p.w,p.y+p.h)
 	end
@@ -302,7 +305,7 @@ function drawplayer(p)
 		spr(p.n, x,y, 1,1, f)
 	end
 	
-	if debug then
+	if _hitbox then
 		local x,y = hitxy(p)
 		pset(x,y,0)
 	end
@@ -346,11 +349,6 @@ function tryaction(p)
 	-- top left corner in pixels
 	local tlx,tly=hitxy(p)
 	
-	if debug then
-		print(tlx..","..tly)
-		flip()
-	end
-	
 	-- check 4-cell grid (sqr)
 	for x1=-1,0 do
 		for y1=-1,0 do
@@ -371,7 +369,7 @@ end
 
 function hitinside(e,x,y)
 	
-	if debug then
+	if _hitsearch then
 		camera(camx,camy)
 		color(13)
 		rect(e.x,e.y,e.x+e.w,e.y+e.h)
@@ -577,7 +575,7 @@ function drawsheep(e)
 	
 	spr(s, x,y, 1,1, f)
 	
-	if debug then
+	if _sheepbox then
 		color(2)
 		rect(e.x,e.y,e.x+e.w,e.y+e.h)
 	end
