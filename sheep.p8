@@ -91,36 +91,6 @@ apple
 	wolf   > runs away! (secret)
 	player > less sleepy
 
-
-
----
-
-update game:
-
-loop through visible entities
-
-if e.tick
- e.tick()
-
-if e.shouldact
- e.shouldact=false
- e.act()
- 	handle act-collision (how?)
- 	e:collide(???)
-
-if e.movable
- move(e)
- foreach entity e2
- 	handle move-collision
-		e:collide(e2)
-
-def
-	p.collide = player_collides
-	s.collide = sheep_collides
-	w.collide = wolf_collides
-	etc
-
-
 --]]
 
 function _init()
@@ -185,10 +155,19 @@ function add_to_emap(e)
 	e._emapi = i
 end
 
-function emap_maybe_move(e)
-	if count(emap_moves,e)==0 then
-		add(emap_moves,e)
+function emap_move(e)
+	local i = emapi(e)
+	local j = e._emapi
+	if i != j then
+		del(emap[j], e)
+		add(emap[i], e)
+		e._emapi=i
 	end
+end
+
+function emap_remove(e)
+	local es = emap[e._emapi]
+	del(es, e)
 end
 
 function replacetile(x,y)
@@ -216,9 +195,7 @@ function updategame()
 	for y=emapy,emapy+16 do
 		for x=emapx,emapx+16 do
 			local es = emap[y*128+x]
-			for i=1,#es do
-				local e = es[i]
-				
+			for e in all(es) do
 				if e.tick then
 					e:tick()
 				end
@@ -227,16 +204,6 @@ function updategame()
 					trymoving(e)
 				end
 			end
-		end
-	end
-	
-	for e in all(emap_moves) do
-		local i = emapi(e)
-		local j = e._emapi
-		if i != j then
-			del(emap[j], e)
-			add(emap[i], e)
-			e._emapi=i
 		end
 	end
 	
@@ -252,8 +219,7 @@ function drawgame()
 	for y=emapy,emapy+16 do
 		for x=emapx,emapx+16 do
 			local es = emap[y*128+x]
-			for i=1,#es do
-				local e = es[i]
+			for e in all(es) do
 				e:draw()
 			end
 		end
@@ -307,21 +273,42 @@ function drawplayer(p)
 		if p.move_t % 10 <= 5 then
 			s += 16
 		end
+	elseif p.act_t then
+		s += 32
 	end
 	
 	local x = p.x - p.offx
 	local y = p.y - p.offy
 	
 	spr(s, x,y, 1,1, f)
+	
+	if p.act_t then
+		spr(p.n, p.x+1, p.y)
+	end
 end
 
 function tickplayer(p)
+	-- moving
 	p.mx=0
 	p.my=0
 	if (btn(⬅️,p.n-1)) p.mx=-1
 	if (btn(➡️,p.n-1)) p.mx= 1
 	if (btn(⬆️,p.n-1)) p.my=-1
 	if (btn(⬇️,p.n-1)) p.my= 1
+	
+	-- action timer
+	if p.act_t then
+		p.act_t -= 1
+		if (p.act_t==0) p.act_t=nil
+	end
+	
+	-- using action
+	if not p.act_t
+    and btnp(❎,p.n-1)
+	then
+		p.act_t=15
+		act(p)
+	end
 end
 
 function player_collide(e,e2)
@@ -351,7 +338,7 @@ function trymoving(e)
 		
 		e.x += e.mx * e.speed
 		if trymovingdir(e, e.mx,0) then
-			emap_maybe_move(e)
+			emap_move(e)
 		else
 			e.x -= e.mx * e.speed
 		end
@@ -360,7 +347,7 @@ function trymoving(e)
 	if e.my != 0 then
 		e.y += e.my * e.speed
 		if trymovingdir(e, 0,e.my) then
-			emap_maybe_move(e)
+			emap_move(e)
 		else
 			e.y -= e.my * e.speed
 		end
@@ -568,7 +555,9 @@ function makeseed(x,y)
 		y=y*8,
 		w=8,
 		h=8,
+		t=30,
 		draw=drawseed,
+		tick=tickseed,
 	})
 end
 
@@ -580,15 +569,23 @@ function drawseed(e)
 	spr(35,e.x,e.y)
 end
 
+function tickseed(e)
+	e.t -= 1
+	if e.t == 0 then
+		emap_remove(e)
+		makebush(e.x/8, e.y/8, nil)
+	end
+end
+
 __gfx__
 000000000000000000000000000000000665000044444444450450450000bb000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000b4b400065510005555555545045045000bb00000090a0000000000000001000000000000044400000888000000000000000000
 0070070000000000000000000bbbbbb06551166000004500445450450000b000000000900000066000000120000000000044f1000088f1000000000000000000
-0007700000000000005550000b4b4bb5051106514444444404545004000888000a000000006665101000011100000000004fff00008fff000000000000000000
-0007700000004440004455500b4bbb45006660115455545504504504008ee8800000a000006665501111111700000000004ee000008990000001100000000000
-0070070000045554000044550bb4b450066551000450045004504504008e888000900000006666000151150000000000000ee000000990000000000000000000
-00000000000045540000004400b44550065511000450004504504545008888800000009000500500155150000000000000011000000220000000000000000000
-00000000000004400000000000444500000110000045004504504545000888000a00a00000500500100500000000000000011000000220000000000000000000
+0007700000555000000444000b4b4bb5051106514444444404545004000888000a000000006665101000011100000000004fff00008fff000000000000000000
+0007700000445550004555400b4bbb45006660115455545504504504008ee8800000a000006665501111111700000000004ee000008990000001100000000000
+0070070000004455000455400bb4b450066551000450045004504504008e888000900000006666000151150000000000000ee000000990000000000000000000
+00000000000000440000440000b44550065511000450004504504545008888800000009000500500155150000000000000011000000220000000000000000000
+00000000000000000000000000444500000110000045004504504545000888000a00a00000500500100500000000000000011000000220000000000000000000
 000000b50000000000000000000000000066660000000000b00000000000000000000a0000000000000000000000000000000000000000000000000000000000
 00000bb50000000000000000004b4b0006666550000b0bbbbb9b0000000000000090000000000000000001000000000000044400000888000000000000000000
 00000b5000000000000000000bbbbbb00665555100099b9bbbb0000000000000000000090000066000000120000000000044f1000088f1000000000000000000
