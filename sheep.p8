@@ -124,7 +124,6 @@ def
 --]]
 
 function _init()
-	level=1
 	startgame()
 end
 
@@ -159,6 +158,15 @@ function replacetile(x,y)
 end
 
 function updategame()
+	
+	-- get spot between players
+	local cx=(sarah.x+abbey.x)/2+4
+	local cy=(sarah.y+abbey.y)/2+4
+	
+	-- get camera pixel top-left
+	camx=mid(0, cx-64, 256-128)
+	camy=mid(0, cy-64, 256-128)
+	
 	for i=1,#entities do
 		local e = entities[i]
 		if e.tick then
@@ -166,19 +174,15 @@ function updategame()
 		end
 		
 		if e.movable then
+		 if e.isplayer then
 			trymoving(e)
+			end
 		end
 	end
 end
 
 function drawgame()
 	cls(3)
-	
-	local cx=(sarah.x+abbey.x)/2+4
-	local cy=(sarah.y+abbey.y)/2+4
-	
-	local camx=mid(0, cx-64, 256-128)
-	local camy=mid(0, cy-64, 256-128)
 	
 	camera(camx,camy)
 	
@@ -190,6 +194,11 @@ function drawgame()
 	end
 	
 	camera()
+	
+	rectfill(0,0,20,20,0)
+	color(7)
+	print(camx)
+	print(camy)
 end
 
 -->8
