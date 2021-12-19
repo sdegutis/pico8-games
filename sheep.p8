@@ -191,8 +191,8 @@ function updategame()
 	local cy=(sarah.y+abbey.y)/2+h2
 	
 	-- save camera pixel top-left
-	camx=mid(0, cx-64, 8*128-128)
-	camy=mid(0, cy-64, 8* 64-128)
+	camx=mid(0, cx-64,   8*128-128)
+	camy=mid(0, cy-64+4, 8* 64-128)
 	
 	local cellx=flr(camx/8)
 	local celly=flr(camy/8)
@@ -223,11 +223,11 @@ end
 function drawgame()
 	cls(3)
 	
-	camera(camx,camy)
+	camera(camx,camy-8)
 	
 	map()
 	
-	for y=emapy-1,emapy+16 do
+	for y=emapy-1,emapy+15 do
 		for x=emapx-1,emapx+16 do
 			local es = emap[y*128+x]
 			for e in all(es) do
@@ -242,6 +242,8 @@ function drawgame()
 	abbey:draw()
 	
 	camera()
+	
+	rectfill(0,0,127,7,1)
 	
 	--rectfill(0,0,10,10,1)
 end
@@ -478,7 +480,7 @@ function trymovingdir(e,x,y)
 		local dx = abs(e1.x-e2.x)
 		local dy = abs(e1.y-e2.y)
 		if dx > 128-e1.w or
-		   dy > 128-e1.h then
+		   dy > 120-e1.h then
 			return false
 		end
 	end
