@@ -181,12 +181,15 @@ function updategame()
 	local cx=(sarah.x+abbey.x)/2+4
 	local cy=(sarah.y+abbey.y)/2+4
 	
-	-- get camera pixel top-left
+	-- save camera pixel top-left
 	camx=mid(0, cx-64, 256-128)
 	camy=mid(0, cy-64, 256-128)
 	
-	for i=1,#entities do
-		local e = entities[i]
+	-- save emap cell top-left
+	emapx = min(flr(camx/8),127-16)
+	emapy = min(flr(camy/8),63 -16)
+	
+	forvisents(function(e)
 		if e.tick then
 			e:tick()
 		end
@@ -196,7 +199,7 @@ function updategame()
 			trymoving(e)
 			end
 		end
-	end
+	end)
 end
 
 function drawgame()
@@ -206,17 +209,24 @@ function drawgame()
 	
 	map()
 	
-	for i=1,#entities do
-		local e = entities[i]
+	forvisents(function(e)
 		e:draw()
-	end
+	end)
 	
 	camera()
-	
-	rectfill(0,0,20,20,0)
-	color(7)
-	print(camx)
-	print(camy)
+end
+
+function forvisents(fn)
+	for y=emapy,emapy+16 do
+		for x=emapx,emapx+16 do
+			local es = emap[y*128+x]
+			if es then
+				for i=1,#es do
+				 fn(es[i])
+				end
+			end
+		end
+	end
 end
 
 -->8
