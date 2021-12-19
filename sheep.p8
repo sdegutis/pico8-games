@@ -191,8 +191,8 @@ function updategame()
 	local cy=(sarah.y+abbey.y)/2+4
 	
 	-- save camera pixel top-left
-	camx=mid(0, cx-64, 256-128)
-	camy=mid(0, cy-64, 256-128)
+	camx=mid(0, cx-64, 8*128-128)
+	camy=mid(0, cy-64, 8* 64-128)
 	
 	-- save emap cell top-left
 	emapx = min(flr(camx/8),127-16)
@@ -206,9 +206,7 @@ function updategame()
 		end
 		
 		if e.movable then
-		 if e.isplayer then
 			trymoving(e)
-			end
 		end
 	end)
 	
