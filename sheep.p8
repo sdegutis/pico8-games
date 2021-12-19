@@ -448,8 +448,10 @@ function makesheep(x,y)
 		k='sheep',
 		x=x*8,
 		y=y*8,
-		w=8,
-		h=8,
+		w=5,
+		h=5,
+		offx=2,
+		offy=3,
 		movable=true,
 		draw=drawsheep,
 		tick=ticksheep,
@@ -460,8 +462,21 @@ function makesheep(x,y)
 	})
 end
 
-function drawsheep(s)
-	spr(9,s.x,s.y)
+function drawsheep(e)
+	local s = 9
+	if e.moving then
+		if e.move_t % 10 <= 5 then
+			s += 16
+		end
+	end
+	
+	local f = false
+	if (e.d < 0) f=true
+	
+	local x=e.x
+	local y=e.y
+	
+	spr(s, x,y, 1,1, f)
 end
 
 function ticksheep(s)
