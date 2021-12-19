@@ -452,6 +452,7 @@ function makesheep(x,y)
 		h=5,
 		offx=2,
 		offy=3,
+		t=0,
 		movable=true,
 		draw=drawsheep,
 		tick=ticksheep,
@@ -479,8 +480,17 @@ function drawsheep(e)
 	spr(s, x,y, 1,1, f)
 end
 
-function ticksheep(s)
-	s.mx = 1
+function ticksheep(e)
+	-- choose new action when idle
+	if e.t == 0 then
+		-- change action in 2-3 sec
+		e.t = flr((rnd(1)+2)*30)
+		
+		e.mx = flr(rnd(2))-1
+		e.my = flr(rnd(2))-1
+	else
+		e.t -= 1
+	end
 end
 
 function sheep_collided(e,e2)
