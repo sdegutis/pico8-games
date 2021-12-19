@@ -162,19 +162,28 @@ end
 function add_to_emap(e)
 	local i = emapi(e.x, e.y)
 	add(emap[i], e)
-	e._emapi = i
+	e.slots = {emap[i]}
 end
 
 function emap_move(e)
 	emap_remove(e)
-	local i = emapi(e.x, e.y)
-	add(emap[i], e)
-	e._emapi=i
+	
+	for x=0,1 do
+		for y=0,1 do
+			local x = e.x + e.w*x
+			local y = e.y + e.h*y
+			local i = emapi(x,y)
+			add(emap[i], e)
+			add(e.slots, emap[i])
+		end
+	end
 end
 
 function emap_remove(e)
-	local es = emap[e._emapi]
-	del(es, e)
+	for es in all(e.slots) do
+		del(es, e)
+	end
+	e.slots={}
 end
 
 function replacetile(x,y)
