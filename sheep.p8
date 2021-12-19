@@ -208,8 +208,8 @@ function makeplayer(x,y,n)
 	e={
 		x=x*8,
 		y=y*8,
-		w=8,
-		h=8,
+		w=2,
+		h=6,
 		n=n,
 		isplayer=true,
 		draw=drawplayer,
@@ -218,6 +218,8 @@ function makeplayer(x,y,n)
 		mx=0,
 		my=0,
 		d=1,
+		offx=3,
+		offy=2,
 	}
 	add(entities,e)
 	return e
@@ -236,7 +238,10 @@ function drawplayer(p)
 		end
 	end
 	
-	spr(s, p.x, p.y, 1, 1, f)
+	local x = p.x - p.offx
+	local y = p.y - p.offy
+	
+	spr(s, x,y, 1,1, f)
 end
 
 function tickplayer(p)
@@ -329,11 +334,17 @@ function collided(e1,e2)
 	end
 	
 	-- if the diff between x1,x2
-	-- is less than max of widths
+	-- is less than first's width
 	-- and same for height
 	-- then they collided
-	return dx < max(e1.w,e2.w)
-	   and dy < max(e1.h,e2.h)
+	
+	local w = e1.x < e2.x
+	          and e1.w or e2.w
+	
+	local h = e1.y < e2.y
+	          and e1.h or e2.h
+	
+	return dx < w and dy < h
 end
 
 -->8
