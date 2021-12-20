@@ -462,7 +462,13 @@ function player_collide(e,e2)
 end
 
 function act_stick(p,e)
-	if e.k=='bush' then
+	if e.k=='tree' then
+		if e.apples > 0 then
+			e.apples -= 1
+			makeapple(e.x/8, e.y/8, p.d)
+		end
+		return true
+	elseif e.k=='bush' then
 		hitbush(e)
 		return true
 	elseif e.k=='sheep' then
@@ -472,10 +478,7 @@ function act_stick(p,e)
 end
 
 function act_bag(p,e)
-	if e.k=='tree' then
-		makeapple(e.x/8, e.y/8, p.d)
-		return true
-	elseif e.k=='apple' then
+	if e.k=='apple' then
 		if p.apples < 9 then
 			p.apples += 1
 			emap_remove(e)
@@ -887,6 +890,7 @@ function maketree(x,y,s)
 		w=8,
 		h=8,
 		solid=true,
+		apples=5,
 		s=s,
 		draw=drawsolid,
 	})
