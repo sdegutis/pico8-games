@@ -701,6 +701,12 @@ function makebees(x,y)
 		y=y*8,
 		w=8,
 		h=8,
+		t=0,
+		movable=true,
+		mx=0,
+		my=0,
+		speed=0.3,
+		collide=bees_collide,
 		draw=drawbees,
 		tick=tickbees,
 	})
@@ -714,11 +720,47 @@ end
 
 function tickbees(e)
 	
-	local cx=flr(e.x/8)
-	local cy=flr(e.y/8)
+	if e.t > 0 then
+		e.t-=1
+		if (e.t==0) e.chase=nil
+	end
 	
-	for x=-1,1 do
-		for y=-1,1 do
+	if e.chase then
+		if e.t > 30 then
+			e.mx = sgn(e.chase.x-e.x)
+			e.my = sgn(e.chase.y-e.y)
+		else
+			e.mx=0
+			e.my=0
+		end
+	else
+		trystinging(e)
+	end
+	
+end
+
+function bees_collide(e,e2)
+	if e2.k == 'sheep' then
+		hitsheep(e2)
+	end
+end
+
+function trystinging(e)
+	
+	for x=-2,2 do
+		for y=-2,2 do
+			
+			local x1=e.x+x*8
+			local y1=e.y+y*8
+			local i=emapi(x1,y1)
+			
+			for e2 in all(emap[i]) do
+				if e2.k=='player' then
+					e.t=60
+					e.chase=e2
+					return
+				end
+			end
 			
 		end
 	end
