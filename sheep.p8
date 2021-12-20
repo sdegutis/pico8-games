@@ -149,6 +149,9 @@ function startgame()
 			end
 		end
 	end
+	
+	abbey.apples=0
+	abbey.bees=0
 end
 
 --[[
@@ -268,13 +271,20 @@ function drawgame()
 	
 	rectfill(0,0,127,7,0)
 	
+	-- bees
+	print(tostr(abbey.bees),
+	      30,2,7)
+	spr(8,20,-1)
+	
 	-- apples
-	print(tostr(abbey.apples),40,2,7)
-	spr(7,30,-1)
+	print(tostr(abbey.apples),
+	      60,2,7)
+	spr(7,50,-1)
 	
 	-- sheep
-	print(tostr(numsheep),80,2,7)
-	spr(9,70,-1)
+	print(tostr(numsheep),
+	      90,2,7)
+	spr(9,80,-1)
 end
 
 function round(n)
@@ -315,7 +325,6 @@ function makeplayer(x,y,n)
 		h=6,
 		n=n,
 		speed=1,
-		apples=0,
 		draw=drawplayer,
 		tick=tickplayer,
 		movable=true,
@@ -466,6 +475,10 @@ function act_bag(p,e)
 			emap_remove(e)
 			return true
 		end
+	elseif e.k=='bees' then
+		p.bees += 1
+		emap_remove(e)
+		return true
 	elseif e.k=='sheep' then
 		hitsheep(e)
 		return true
