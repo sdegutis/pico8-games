@@ -387,19 +387,22 @@ end
 function tryaction(p)
 	-- top left corner in pixels
 	local r=hitrect(p)
-	local corners = {
-		{r.x,r.y},     {r.x+r.w,r.y},
-		{r.x,r.y+r.h}, {r.x+r.w,r.y+r.h},
-	}
 	
-	-- check 4-cell grid (sqr)
-	for c in all(corners) do
-		local i = emapi(unpack(c))
-		for e in all(emap[i]) do
-			if hitinside(e,r) then
-				if p:act(e) then
-					p.act_t=nil
-					return
+	-- check 4-cell grid
+	for x=0,1 do
+		for y=0,1 do
+			-- get the x/y of corner
+			local x1 = r.x + r.w*x
+			local y1 = r.y + r.h*y
+			
+			-- now check this cell
+			local i = emapi(x1,y1)
+			for e in all(emap[i]) do
+				if hitinside(e,r) then
+					if p:act(e) then
+						p.act_t=nil
+						return
+					end
 				end
 			end
 		end
@@ -710,6 +713,15 @@ function drawbees(e)
 end
 
 function tickbees(e)
+	
+	local cx=flr(e.x/8)
+	local cy=flr(e.y/8)
+	
+	for x=-1,1 do
+		for y=-1,1 do
+			
+		end
+	end
 	
 end
 
