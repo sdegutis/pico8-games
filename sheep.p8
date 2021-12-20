@@ -572,15 +572,19 @@ function trymovingdir(e,x,y)
 	local eas = {ea1}
 	if (ei1 != ei2) add(eas,ea2)
 	
+	local seen={}
 	-- loop through each array
 	for ea in all(eas) do
 		-- loop through each entity
 		for e2 in all(ea) do
-			if collided(e,e2) then
-				if e2.solid then
-					return false
-				else
-					e:collide(e2)
+			if not seen[e2] then
+				seen[e2]=true
+				if collided(e,e2) then
+					if e2.solid then
+						return false
+					else
+						e:collide(e2)
+					end
 				end
 			end
 		end
