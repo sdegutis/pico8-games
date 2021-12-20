@@ -140,6 +140,9 @@ function startgame()
 			elseif s==57 then
 				makebush(x,y,makesheep)
 				replacetile(x,y)
+			elseif s==56 then
+				makebush(x,y,makebees)
+				replacetile(x,y)
 			elseif fget(s,0) then
 				makesolid(x,y,s)
 				replacetile(x,y)
@@ -280,6 +283,24 @@ function round(n)
 	else
 		return ceil(n)
 	end
+end
+
+
+function makesolid(x,y,s)
+	add_to_emap({
+		k='solid',
+		x=x*8,
+		y=y*8,
+		w=8,
+		h=8,
+		s=s,
+		solid=true,
+		draw=drawsolid,
+	})
+end
+
+function drawsolid(e)
+	spr(e.s, e.x, e.y)
 end
 
 -->8
@@ -675,24 +696,7 @@ function sheep_collided(e,e2)
 end
 
 -->8
--- entities
-
-function makesolid(x,y,s)
-	add_to_emap({
-		k='solid',
-		x=x*8,
-		y=y*8,
-		w=8,
-		h=8,
-		s=s,
-		solid=true,
-		draw=drawsolid,
-	})
-end
-
-function drawsolid(e)
-	spr(e.s, e.x, e.y)
-end
+-- enemies
 
 function makebees(x,y)
 	add_to_emap({
