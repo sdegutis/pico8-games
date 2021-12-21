@@ -37,7 +37,7 @@ function _init()
 				makebush(x,y,nil)
 				replacetile(x,y)
 			elseif s==35 then
-				makeseed(x,y,nil)
+				makeseed(x,y)
 				replacetile(x,y)
 			elseif s==37 or s==38 then
 				maketree(x,y,s)
@@ -794,12 +794,12 @@ function makebush(x,y,seeder)
 		t=0,
 		solid=true,
 		draw=drawbush,
-		tick=seeder and tickbush or nil,
+		tick=seeder and tickbush,
 		seeder=seeder,
 	})
 end
 
-function makeseed(x,y,seeder)
+function makeseed(x,y)
 	add_to_emap({
 		k='seed',
 		x=x*8,
@@ -807,7 +807,6 @@ function makeseed(x,y,seeder)
 		w=8,
 		h=8,
 		t=30*20,
-		seeder=seeder,
 		draw=drawseed,
 		tick=tickseed,
 	})
@@ -835,14 +834,14 @@ function hitbush(e)
 	local y=e.y/8
 	
 	emap_remove(e)
-	makeseed(x, y, e.seeder)
+	makeseed(x, y)
 	if e.seeder then
 		e.seeder(x, y)
 	end
 end
 
 function drawseed(e)
-	spr(35,e.x,e.y)
+	spr(51,e.x,e.y)
 end
 
 function tickseed(e)
@@ -862,7 +861,7 @@ function tickseed(e)
 		emap_remove(e)
 		local x = e.x/8
 		local y = e.y/8
-		makebush(x,y, e.seeder)
+		makebush(x,y)
 	end
 end
 
