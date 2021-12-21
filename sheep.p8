@@ -1,108 +1,13 @@
 pico-8 cartridge // http://www.pico-8.com
 version 34
 __lua__
-
-
---[[
-
-sheep.p8
-
-both girls are shepherds.
-the sheep are lost!
-find them, bring them home.
-
-top-down zelda-style view.
-toggleable split screen.
-8 pre-made levels.
-
-one girl has stick.
-stick can clear bushes.
-stick can shoo bees.
-
-one girl has bag.
-bag can carry apples.
-bag can carry bees!
-
-clearing bushes is tiring.
-sleepiness makes you slow.
-apples cure sleepiness!
-
-wolves scare sheep!
-shoo them with bees!
-find bees in bushes.
-
-lead sheep to their fold.
-sheep follow other sheep.
-sheep like being fed apples!
-
-
----
-
-interactions
-
-bushes
-	can contain bees
-	can contain apples
-	can contain sheep?
-	can contain wolves!
-
-trees
-	can contain apples
-	can contain bees
-	release if:
-		hit with stick
-		hit with bag
-
-stick
-	sheep > runs
-	wolf  > nothing
-	bush  > clear & reveal
-	bees  > runs (after 3)
-	apple > nothing
-
-bag
- sheep > nothing
- wolf  > nothing
- bush  > nothing
- bees  > captures
- apple > captures
-
-bees sees
-	player > gets sleepy
-	wolf   > nothing
-	sheep  > runs
-	bees   > nothing
-
-wolf sees
- player > nothing
- bees   > nothing
- sheep  > runs
- wolf   > nothing
-
-sheep sees
-	player > nothing
-	bees   > runs
-	wolf   > runs
-	sheep  > follows
-
-apple
-	bees   > nothing
-	sheep  > follows player!
-	wolf   > runs away! (secret)
-	player > less sleepy
-
---]]
-
-_playerbox=false
-_hitbox=false
-_hitsearch=false
-_sheepbox=false
+-- sheep.p8
+--
+-- both girls are shepherds.
+-- the sheep are lost!
+-- find them, bring them home.
 
 function _init()
-	startgame()
-end
-
-function startgame()
 	emap={}
 	
 	numsheep=0
@@ -154,13 +59,10 @@ function startgame()
 	end
 end
 
---[[
-emap is 128 x 64 grid (0-base)
-flattened by row-first
-each element is ent[]
-cx,cy = floor(px,py / 8)
-i = cx + cy*128
---]]
+-- emap: 128 x 64 grid
+-- each cell = ent[]
+-- cx,cy = floor(px,py / 8)
+-- index = cx + cy*128
 
 function emapi(x,y)
 	local cx = flr(x/8)
@@ -337,6 +239,11 @@ end
 7 pasture
 
 --]]
+
+_playerbox=false
+_hitbox=false
+_hitsearch=false
+_sheepbox=false
 
 -->8
 -- players
