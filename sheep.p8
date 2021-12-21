@@ -377,7 +377,9 @@ function drawplayer(p)
 	local f = false
 	if (p.d < 0) f=true
 	
-	if p.moving then
+	if p.sleep then
+		s += 48
+	elseif p.moving then
 		if p.move_t % 10 <= 5 then
 			s += 16
 		end
@@ -389,6 +391,12 @@ function drawplayer(p)
 	local y = p.y - p.offy
 	
 	spr(s, x,y, 1,1, f)
+	
+	if p.sleep then
+		local t = 30*5-p.sleep
+		local n = flr(t/7)%4
+		spr(14+(n*16), x,y, 1,1, f)
+	end
 	
 	if _playerbox then
 		color(1)
@@ -416,9 +424,16 @@ function hitrect(p)
 end
 
 function tickplayer(p)
-	-- moving
 	p.mx=0
 	p.my=0
+	
+	if p.sleep then
+		p.sleep -= 1
+		if (p.sleep==0) p.sleep=nil
+		return
+	end
+	
+	-- moving
 	if (btn(⬅️,p.n-1)) p.mx=-1
 	if (btn(➡️,p.n-1)) p.mx= 1
 	if (btn(⬆️,p.n-1)) p.my=-1
@@ -483,7 +498,10 @@ function hitinside(e,r)
 end
 
 function player_collide(e,e2)
-	
+	if e2.k=='bees' then
+		sting(e2,e)
+		return true
+	end
 end
 
 function act_stick(p,e)
@@ -730,14 +748,16 @@ function hitsheep(e)
 	e.t = 60
 	e.speed=sheep_speed*3
 	
+	e.mx, e.my = randommoves()
+end
+
+function randommoves()
 	local a,b
 	a = rnd()<0.5 and 1 or -1
 	b = rnd()<0.5 and 1 or -1
 	if (rnd()<0.5) b=0
 	if (rnd()<0.5) a,b = b,a
-	
-	e.mx = a
-	e.my = b
+	return a,b
 end
 
 function sheep_collided(e,e2)
@@ -777,7 +797,12 @@ function tickbees(e)
 	
 	if e.t > 0 then
 		e.t-=1
-		if (e.t==0) e.chase=nil
+		if e.t==0 then
+			e.chase=nil
+			e.flee=nil
+			e.mx=0
+			e.my=0
+		end
 	end
 	
 	if e.chase then
@@ -788,7 +813,7 @@ function tickbees(e)
 			e.mx=0
 			e.my=0
 		end
-	else
+	elseif not e.flee then
 		trystinging(e)
 	end
 	
@@ -797,7 +822,20 @@ end
 function bees_collide(e,e2)
 	if e2.k == 'sheep' then
 		hitsheep(e2)
+	elseif e2.k=='player' then
+		if not e.flee then
+			sting(e,e2)
+		end
 	end
+end
+
+function sting(e,e2)
+	e.chase=nil
+	e.flee=true
+	e.mx, e.my = randommoves()
+	e.t=30*5
+	
+	e2.sleep=30*5
 end
 
 function trystinging(e)
