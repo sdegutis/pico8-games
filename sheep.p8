@@ -332,7 +332,7 @@ function drawplayer(p)
 	if p.act_t then
 		local r = hitrect(p)
 		local s = p.n
-		s += 16 * (4-flr(p.act_t/3))
+		s += 16 * (3-flr(p.act_t/3))
 		spr(s, r.x-1,r.y-3, 1,1, f)
 	end
 	
