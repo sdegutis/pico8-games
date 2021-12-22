@@ -852,10 +852,7 @@ function makeshaker()
 		end,
 		shake=function()
 		 -- shake every 5-10 sec
-			if t < 20 then
-				if (t%8<4) return 16
-			end
-			return 0
+			return t < 20 and t%8 < 4
 		end,
 	}
 end
@@ -876,7 +873,7 @@ function drawbush(e)
 	if e.dying then
 		s+=32
 	else
-		s+=e.shaker.shake()
+		if (e.shaker.shake()) s+=16
 	end
 	spr(s,e.x,e.y)
 end
@@ -933,6 +930,7 @@ function maketree(offx,x,y,s,itemfn)
 		itemfn=itemfn,
 		s=s,
 		draw=drawtree,
+		shaker=itemfn and makeshaker(),
 	})
 end
 
