@@ -821,7 +821,7 @@ function makebush(x,y,seeder)
 		t=0,
 		solid=true,
 		draw=drawbush,
-		tick=seeder and tickbush,
+		tick=tickbush,
 		seeder=seeder,
 	})
 end
@@ -840,30 +840,43 @@ function makeseed(x,y)
 end
 
 function tickbush(e)
-	if e.t == 0 then
-	 -- shake every 5-10 sec
-		e.t = ceil(rnd(5)+5)*30
-	else
-		e.t -= 1
+	if e.dying then
+		e.dying -= 1
+		if e.dying==0 then
+			e.dying = nil
+		end
+	elseif seeder then
+		if e.t == 0 then
+		 -- shake every 5-10 sec
+			e.t = ceil(rnd(5)+5)*30
+		else
+			e.t -= 1
+		end
 	end
 end
 
 function drawbush(e)
 	local s=3
-	if e.t < 20 then
+	if e.dying then
+		s+=32
+	elseif e.t < 20 then
 		if (e.t%8<4) s+=16
 	end
 	spr(s,e.x,e.y)
 end
 
 function hitbush(e)
-	local x=e.x/8
-	local y=e.y/8
-	
-	emap_remove(e)
-	makeseed(x, y)
-	if e.seeder then
-		e.seeder(x, y)
+	if e.dying then
+		local x=e.x/8
+		local y=e.y/8
+		
+		emap_remove(e)
+		makeseed(x, y)
+		if e.seeder then
+			e.seeder(x, y)
+		end
+	else
+		e.dying = 30*5
 	end
 end
 
