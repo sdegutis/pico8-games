@@ -46,18 +46,18 @@ function _init()
 			elseif fget(s,2) then
 				local s2 = mget(x+1,y)
 				if s2==7 then
-					maketree(x,y,s,makeapple)
-					maketree(x+1,y,s+1,makeapple)
+					maketree(5,x,y,s,makeapple)
+					maketree(0,x+1,y,s+1,makeapple)
 				elseif s2==8 then
-					maketree(x,y,s,makebees)
-					maketree(x+1,y,s+1,makebees)
+					maketree(5,x,y,s,makebees)
+					maketree(0,x+1,y,s+1,makebees)
 				elseif s2==9 then
-					maketree(x,y,s,makesheep)
-					maketree(x+1,y,s+1)
+					maketree(5,x,y,s,makesheep)
+					maketree(0,x+1,y,s+1)
 					numsheep += 1
 				else
-					maketree(x,y,s)
-					maketree(x+1,y,s+1)
+					maketree(5,x,y,s)
+					maketree(0,x+1,y,s+1)
 				end
 				replacetile(x,y)
 				replacetile(x+1,y)
@@ -283,11 +283,7 @@ function makeplayer(x,y,n)
 		collide=player_collide,
 		mx=0,
 		my=0,
-		act  = (n==1 and act_stick
-	               or act_bag),
-		act2 = (n==1 and act_stick
-	               or act_throw),
-  acting=false,
+  act=nil,
   act_t=nil,
 		d=1,
 		offx=3,
@@ -377,22 +373,22 @@ function tickplayer(p)
 		p.act_t -= 1
 		if (p.act_t==0) then
 			p.act_t=nil
-			p.acting=false
+			p.act=nil
 		end
 	end
 	
 	-- try action
-	if p.acting then
+	if p.act then
 		tryaction(p)
-	elseif not p.act_t
-	       and btnp(❎,p.n-1)
+	elseif btnp(❎,p.n-1)
+	       and not p.act_t
 	then
-		p.acting=true
+		p.act=actions[p.n].❎
 		p.act_t=3*4
-	elseif not p.act_t
-	       and btnp(🅾️,p.n-1)
+	elseif btnp(🅾️,p.n-1)
+	       and not p.act_t
 	then
-		p.acting=true
+		p.act=actions[p.n].🅾️
 		p.act_t=3*4
 	end
 	
@@ -413,8 +409,9 @@ function tryaction(p)
 			local i = emapi(x1,y1)
 			for e in all(emap[i]) do
 				if hitinside(e,r) then
+					--local act = acts[p.n]
 					if p:act(e) then
-						p.acting=false
+						p.act=nil
 						return
 					end
 				end
@@ -469,6 +466,16 @@ function act_bag(p,e)
 		return true
 	end
 end
+
+actions = {
+	-- player 1
+	{❎=act_stick,
+  🅾️=act_stick},
+	
+	-- player 2
+	{❎=act_bag,
+  🅾️=act_throw},
+}
 
 -->8
 -- moving
@@ -881,23 +888,28 @@ function tickseed(e)
 	end
 end
 
-function maketree(x,y,s,itemfn)
+function maketree(offx,x,y,s,itemfn)
 	add_to_emap({
 		k='tree',
-		x=x*8,
+		x=x*8+offx,
 		y=y*8,
-		w=8,
+		w=3,
 		h=8,
+		offx=offx,
 		solid=true,
 		itemfn=itemfn,
 		s=s,
-		draw=drawsimple,
+		draw=drawtree,
 	})
+end
+
+function drawtree(e)
+	spr(e.s, e.x-e.offx, e.y)
 end
 
 function hittree(e, d)
 	if e.itemfn then
-		local x=e.x/8+d
+		local x=e.x/8
 		local y=e.y/8-1
 		e.itemfn(x,y,d)
 		e.itemfn=nil
