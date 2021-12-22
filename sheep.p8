@@ -285,8 +285,7 @@ function makeplayer(x,y,n)
 		collide=player_collide,
 		mx=0,
 		my=0,
-  act=nil,
-  act_t=nil,
+  action=nil,
 		d=1,
 		offx=offx,
 		offy=offy,
@@ -308,7 +307,7 @@ function drawplayer(p)
 		if p.move_t % 10 <= 5 then
 			s += 16
 		end
-	elseif p.act_t then
+	elseif p.action then
 		s += 32
 	end
 	
@@ -333,10 +332,10 @@ function drawplayer(p)
 		rect(r.x,r.y,r.x+r.w,r.y+r.h,0)
 	end
 	
-	if p.act_t then
+	if p.action and
+	   p.action.button==❎ then
 		local r = hitrect(p)
-		local s = p.n
-		s += 16 * (3-flr(p.act_t/3))
+		local s = p.n+(16*p.action.spr)
 		spr(s, r.x-1,r.y-3, 1,1, f)
 	end
 	
@@ -371,32 +370,41 @@ function tickplayer(p)
 	if (btn(⬇️,p.n-1)) p.my= 1
 	
 	-- animate acting spr
-	if p.act_t then
-		p.act_t -= 1
-		if (p.act_t==0) then
-			p.act_t=nil
-			p.act=nil
+	if p.action then
+		p.action = p.action.tick()
+	else
+		if btnp(❎,p.n-1) then
+			p.action=makeaction(p.n,❎,
+				function()
+					local act=actions[p.n].❎
+					return tryaction(p,act)
+				end
+			)
+		elseif btnp(🅾️,p.n-1) then
+			p.action=makeaction(p.n,"🅾️")
 		end
-	end
-	
-	-- try action
-	if p.act then
-		tryaction(p)
-	elseif btnp(❎,p.n-1)
-	       and not p.act_t
-	then
-		p.act=actions[p.n].❎
-		p.act_t=3*4
-	elseif btnp(🅾️,p.n-1)
-	       and not p.act_t
-	then
-		p.act=actions[p.n].🅾️
-		p.act_t=3*4
 	end
 	
 end
 
-function tryaction(p)
+function makeaction(n,b,fn)
+	local done=false
+	local t=3*4
+	local a={button=b}
+	a.spr=0
+	a.tick=function()
+		t -= 1
+		a.spr = (3-flr(t/3))
+		if (t == 0) return nil
+		if not done then
+			done=fn()
+		end
+		return a
+	end
+	return a
+end
+
+function tryaction(p,act)
 	-- top left corner in pixels
 	local r=hitrect(p)
 	
@@ -412,9 +420,8 @@ function tryaction(p)
 			for e in all(emap[i]) do
 				if hitinside(e,r) then
 					--local act = acts[p.n]
-					if p:act(e) then
-						p.act=nil
-						return
+					if act(p,e) then
+						return true
 					end
 				end
 			end
