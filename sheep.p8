@@ -269,10 +269,12 @@ _sheepbox=false
 -- players
 
 function makeplayer(x,y,n)
+	local offx=3
+	local offy=2
 	e={
 		k='player',
-		x=x*8,
-		y=y*8,
+		x=x*8+offx,
+		y=y*8+offy,
 		w=2,
 		h=6,
 		n=n,
@@ -286,8 +288,8 @@ function makeplayer(x,y,n)
   act=nil,
   act_t=nil,
 		d=1,
-		offx=3,
-		offy=2,
+		offx=offx,
+		offy=offy,
 	}
 	add_to_emap(e)
 	return e
@@ -619,14 +621,16 @@ end
 sheep_speed=0.2
 
 function makesheep(x,y,d)
+	local offx=1
+	local offy=3
 	add_to_emap({
 		k='sheep',
-		x=x*8,
-		y=y*8,
+		x=x*8+offx,
+		y=y*8+offy,
 		w=5,
 		h=5,
-		offx=1,
-		offy=3,
+		offx=offx,
+		offy=offy,
 		t=d and 30 or 0,
 		speed=sheep_speed,
 		movable=true,
