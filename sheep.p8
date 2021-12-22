@@ -872,7 +872,7 @@ function drawbush(e)
 	local s=3
 	if e.dying then
 		s+=32
-	else
+	elseif e.shaker then
 		if (e.shaker.shake()) s+=16
 	end
 	spr(s,e.x,e.y)
