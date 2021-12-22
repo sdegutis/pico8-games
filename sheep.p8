@@ -845,7 +845,7 @@ function tickbush(e)
 		if e.dying==0 then
 			e.dying = nil
 		end
-	elseif seeder then
+	elseif e.seeder then
 		if e.t == 0 then
 		 -- shake every 5-10 sec
 			e.t = ceil(rnd(5)+5)*30
