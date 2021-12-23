@@ -726,9 +726,23 @@ function tosssheep(e,d)
 	e.my=1
 end
 
+function feedsheep(e)
+	e.pet=true
+end
+
 function ticksheep(e)
 	if e.hearts then
 		e.hearts=e.hearts.tick()
+	end
+	
+	if e.pet then
+		if not e.friend then
+			-- todo:
+			-- reuse bee chasing code
+			-- but change to radius
+			-- and make it generic
+			-- maybe it takes e.k?
+		end
 	end
 	
 	if e.friend then
@@ -768,11 +782,11 @@ function ticksheep(e)
 	end
 end
 
-function hitsheep(e)
+function hitsheep(e,d)
 	e.t = 60
 	e.speed=sheep_speed*3
 	e.friend=nil -- hes like >:(
-	
+	e.pet=nil
 	e.mx, e.my = randommoves()
 end
 
@@ -926,8 +940,8 @@ function trystinging(e)
 	for x=-2,2 do
 		for y=-2,2 do
 			
-			local x1=e.x+x*8
-			local y1=e.y+y*8
+			local x1=e.x+e.w/2+x*8
+			local y1=e.y+e.h/2+y*8
 			local i=emapi(x1,y1)
 			
 			for e2 in all(emap[i]) do
@@ -1118,6 +1132,8 @@ function apple_collide(e,e2)
 			emap_remove(e)
 		end)
 		return true
+	elseif e2.k=='sheep' then
+		feedsheep(e2)
 	end
 end
 
