@@ -755,17 +755,17 @@ function calmsheep(e,p)
 	if e.calming==5 then
 		e.friend=p
 		e.calming=nil
-		e.hearts=animator(e,15,4)
+		e.hearts=animator(e,15,4,0,7)
 	end
 end
 
-function animator(e, s, fs)
+function animator(e,s,fs,ox,oy)
 	local top=fs*4
 	local t=0
 	a={
 		draw=function()
 			local ss=flr(t/fs)*16
-			spr(s+ss,e.x,e.y)
+			spr(s+ss,e.x-ox,e.y-oy)
 		end,
 		tick=function()
 			t+=1
