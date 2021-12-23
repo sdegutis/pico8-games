@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 34
+version 33
 __lua__
 -- sheep.p8
 --
