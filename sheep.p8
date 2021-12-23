@@ -1091,8 +1091,8 @@ end
 function tossapple(e,d)
 	e.tick = tossedapple
 	e.d    = -d
-	e.vy   = rnd(2)
-	e.t    = flr(rnd(20))+10
+	e.vy   = rnd(.5)+2.5
+	e.t    = flr(rnd(5))+10
 end
 
 function drawapple(e)
@@ -1106,7 +1106,7 @@ function tossedapple(e)
 			emap_move(e)
 		elseif e.t > 0 then
 			e.y -= e.vy
-			e.vy -= 0.1
+			e.vy -= 0.7
 			
 			e.x -= e.d
 		elseif e.t == -(30*20) then
