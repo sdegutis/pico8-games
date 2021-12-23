@@ -123,6 +123,11 @@ end
 
 function updategame()
 	
+	for fn in all(nextticks) do
+		fn()
+	end
+	nextticks={}
+	
 	-- get spot between players
 	local w2 = sarah.w/2
 	local h2 = sarah.h/2
@@ -265,6 +270,11 @@ _hitbox=false
 _hitsearch=false
 _sheepbox=false
 
+nextticks={}
+function nexttick(fn)
+	add(nextticks,fn)
+end
+
 -->8
 -- players
 
@@ -351,6 +361,10 @@ function hitrect(p)
 	if (p.d<0) x -= 10
 	local y = p.y+3
 	return {x=x,y=y,w=5,h=2}
+end
+
+function wakeup(p)
+	p.sleep=nil
 end
 
 function tickplayer(p)
@@ -1086,6 +1100,34 @@ function makeapple(x,y)
 end
 
 function throwapple(e,d)
+	e.tick = thrownapple
+	e.mx = d
+	e.my = 0
+	e.t = 30
+	e.speed = 1
+	e.movable = true
+	e.collide=apple_collide
+end
+
+function apple_collide(e,e2)
+	if e2.k=='player' and
+	   e2.sleep
+	then
+		wakeup(e2)
+		nexttick(function()
+			emap_remove(e)
+		end)
+		return true
+	end
+end
+
+function thrownapple(e)
+	e.t-=1
+	if e.t==0 then
+		e.tick=nil
+		e.t=nil
+		e.movable=false
+	end
 end
 
 function tossapple(e,d)
