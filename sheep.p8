@@ -480,8 +480,18 @@ end
 function act_throw(p)
 	if (not p.has) return act_pet(p)
 	
-	-- ready for logic!
+	local x=p.x/8+p.d
+	local y=p.y/8
+	
+	local e
+	if p.has=='bees' then
+		e=makebees(x,y)
+	elseif p.has=='apple' then
+		e=makeapple(x,y)
+	end
 	p.has=nil
+	
+	e:throw(p.d)
 end
 
 function act_pet(p)
@@ -647,7 +657,7 @@ sheep_speed=0.2
 function makesheep(x,y,d)
 	local offx=1
 	local offy=3
-	add_to_emap({
+	local e={
 		k='sheep',
 		x=x*8+offx,
 		y=y*8+offy,
@@ -660,11 +670,14 @@ function makesheep(x,y,d)
 		movable=true,
 		draw=drawsheep,
 		tick=ticksheep,
+		toss=tosssheep,
 		collide=sheep_collided,
 		mx=d or 0,
 		my=0,
 		d=1,
-	})
+	}
+	add_to_emap(e)
+	return e
 end
 
 function drawsheep(e)
@@ -691,6 +704,12 @@ function drawsheep(e)
 	if e.hearts then
 		e.hearts.draw()
 	end
+end
+
+function tosssheep(e,d)
+	e.t=30*3
+	e.mx=d
+	e.my=1
 end
 
 function ticksheep(e)
@@ -794,8 +813,10 @@ end
 -->8
 -- enemies
 
+beespeed=0.3
+
 function makebees(x,y)
-	add_to_emap({
+	local e={
 		k='bees',
 		x=x*8,
 		y=y*8,
@@ -807,12 +828,29 @@ function makebees(x,y)
 		movable=true,
 		mx=0,
 		my=0,
-		speed=0.3,
+		speed=beespeed,
 		animt=0,
 		collide=bees_collide,
 		draw=drawbees,
 		tick=tickbees,
-	})
+		toss=tossbees,
+		throw=throwbees,
+	}
+	add_to_emap(e)
+	return e
+end
+
+function throwbees(e,d)
+	e.t=30*2
+	e.speed=beespeed*3
+	e.mx=d
+	e.my=0
+	e.flee=true
+end
+
+function tossbees(e, d)
+	-- they just sort of come out
+	-- and hover around i guess
 end
 
 function drawbees(e)
@@ -832,6 +870,7 @@ function tickbees(e)
 			e.flee=nil
 			e.mx=0
 			e.my=0
+			e.speed=beespeed
 		end
 	end
 	
@@ -1024,31 +1063,43 @@ function hittree(e, d)
 	if e.itemfn then
 		local x=e.x/8
 		local y=e.y/8-1
-		e.itemfn(x,y,d)
+		local item = e.itemfn(x,y,d)
 		e.itemfn=nil
+		
+		item:toss(d)
 	end
 end
 
-function makeapple(x,y,d)
-	add_to_emap({
+function makeapple(x,y)
+	local e={
 		k='apple',
 		x=x*8,
 		y=y*8,
 		w=8,
 		h=8,
-		d=-d,
-		vy=rnd(2),
-		t=flr(rnd(20))+10,
 		draw=drawapple,
-		tick=tickapple,
-	})
+		toss=tossapple,
+		throw=throwapple,
+	}
+	add_to_emap(e)
+	return e
+end
+
+function throwapple(e,d)
+end
+
+function tossapple(e,d)
+	e.tick = tossedapple
+	e.d    = -d
+	e.vy   = rnd(2)
+	e.t    = flr(rnd(20))+10
 end
 
 function drawapple(e)
 	spr(7,e.x,e.y)
 end
 
-function tickapple(e)
+function tossedapple(e)
 	if e.t then
 		e.t -= 1
 		if e.t == 0 then
