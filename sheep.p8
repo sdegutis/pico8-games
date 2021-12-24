@@ -37,6 +37,9 @@ function _init()
 				numsheep += 1
 				makesheep(x,y)
 				replacetile(x,y)
+			elseif s==10 then
+				makewolf(x,y)
+				replacetile(x,y)
 			elseif s==3 then
 				makebush(x,y,nil)
 				replacetile(x,y)
@@ -492,6 +495,11 @@ function hitinside(e,r)
 	return collided(e,r)
 end
 
+function stung(e)
+	e.sleep=30*5
+	e.action=nil
+end
+
 function player_collide(e,e2)
 	if e2.k=='bees' then
 		sting(e2,e)
@@ -902,7 +910,7 @@ function sheep_collided(e,e2)
 end
 
 -->8
--- enemies
+-- bees
 
 beespeed=0.3
 
@@ -995,7 +1003,7 @@ function sting(e,e2)
 	e.mx, e.my = randommoves()
 	e.t=30*5
 	
-	e2.sleep=30*5
+	stung(e2)
 end
 
 function trystinging(e)
@@ -1039,7 +1047,7 @@ function findrad(e,radius,ks)
 end
 
 -->8
--- greenery
+-- vegetation
 
 function makebush(x,y,seeder)
 	add_to_emap({
@@ -1256,6 +1264,34 @@ function tossedapple(e)
 			emap_remove(e)
 		end
 	end
+end
+
+-->8
+-- wolves
+
+function makewolf(x,y)
+	local e={
+		k='wolf',
+		x=x*8,
+		y=y*8,
+		w=6,
+		h=6,
+		offx=1,
+		offy=1,
+		t=0,
+		movable=true,
+		mx=0,
+		my=0,
+		speed=beespeed,
+		animt=0,
+		collide=bees_collide,
+		draw=drawbees,
+		tick=tickbees,
+		toss=tossbees,
+		throw=throwbees,
+	}
+	add_to_emap(e)
+	return e
 end
 
 __gfx__
