@@ -528,8 +528,6 @@ function player_collide(e,e2)
 	elseif e2.k=='wolf' then
 		bite(e2,e)
 		return true
-	elseif e2.k=='pasture' then
-		wongame()
 	end
 end
 
