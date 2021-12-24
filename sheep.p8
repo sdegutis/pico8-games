@@ -804,17 +804,11 @@ function tosssheep(e,d)
 end
 
 function feedsheep(e)
-	if (e.home) return
-	
 	e.hearts=animator(e,15,4,0,7)
 	e.pet=true
 end
 
 function ticksheep(e)
-	if e.home and not e.hearts then
-		e.hearts=animator(e,15,4,0,7)
-	end
-	
 	if e.hearts then
 		e.hearts=e.hearts.tick()
 	end
@@ -837,7 +831,7 @@ function ticksheep(e)
 		if (adx>5) e.mx = -sgn(dx)
 		if (ady>5) e.my = -sgn(dy)
 		e.t = 30
-	elseif e.friend and not e.home then
+	elseif e.friend then
 		local dx=e.friend.x-e.x
 		local dy=e.friend.y-e.y
 		local adx,ady=abs(dx),abs(dy)
@@ -959,25 +953,63 @@ end
 
 function sheep_collided(e,e2)
 	if e2.k == 'pasture' then
-		if not e.home then
-			e.home=true
-			e.pet=nil
-			e.friend=nil
-			numsheep -= 1
-			
-			if numsheep==0 then
-				wongame()
-			end
-		end
-	elseif e2.k == 'pastureguard' then
-		if e.home then
-			e.mx = -e.mx
-			e.my = -e.my
-			e.t=30
+		e.k='homesheep'
+		e.tick=tick_homesheep
+		e.draw=draw_homesheep
+		e.collide=homesheep_collide
+		e.pet=nil
+		e.friend=nil
+		e.t=0
+		e.mx=0
+		e.my=0
+		e.speed = sheep_speed
+		
+		numsheep -= 1
+		if numsheep==0 then
+			wongame()
 		end
 	elseif e2.k == 'bees' then
 		hitsheep(e)
 	end
+end
+
+function homesheep_collide(e)
+end
+
+function tick_homesheep(e)
+	if not e.hearts then
+		e.hearts=animator(e,15,4,0,7)
+	end
+	
+	if e.hearts then
+		e.hearts=e.hearts.tick()
+	end
+	
+	
+	-- choose new action when idle
+	if e.t == 0 then
+		local still=rnd()<0.5
+		if still then
+			-- stand still for 2-3 sec
+			e.t = flr((rnd(1)+2)*30)
+			e.mx = 0
+			e.my = 0
+		else
+			-- walk for 1 sec
+			e.t = 30
+			local e2=findrad(e,2,
+			 {'pasture'})
+			
+			e.mx=sgn(e2.x-e.x)
+			e.my=sgn(e2.y-e.y)
+		end
+	else
+		e.t -= 1
+	end
+end
+
+function draw_homesheep(e)
+	drawsheep(e)
 end
 
 -->8
