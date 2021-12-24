@@ -824,7 +824,17 @@ function ticksheep(e)
 		end
 	end
 	
-	if e.friend and not e.home then
+	-- run from wolves
+	local w=findrad(e,2,{'wolf'})
+	if w then
+		local dx=w.x-e.x
+		local dy=w.y-e.y
+		local adx=abs(dx)
+		local ady=abs(dy)
+		if (adx>5) e.mx = -sgn(dx)
+		if (ady>5) e.my = -sgn(dy)
+		e.t = 30
+	elseif e.friend and not e.home then
 		local dx=e.friend.x-e.x
 		local dy=e.friend.y-e.y
 		local adx,ady=abs(dx),abs(dy)
@@ -846,15 +856,6 @@ function ticksheep(e)
 		-- find owner
 		if e.pet and not e.friend then
 			e.friend=findrad(e,2,{'player'})
-		end
-		
-		-- run from wolves
-		local w=findrad(e,2,{'wolf'})
-		if w then
- 		e.mx = -sgn(w.x-e.x)
- 		e.my = -sgn(w.y-e.y)
- 		e.t = 30
- 		return
 		end
 		
 		-- follow sheep
