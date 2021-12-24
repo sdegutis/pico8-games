@@ -1061,6 +1061,8 @@ function bees_collide(e,e2)
 		if not e.flee then
 			sting(e,e2)
 		end
+	elseif e2.k=='wolf' then
+		stingwolf(e,e2)
 	end
 end
 
@@ -1071,6 +1073,11 @@ function sting(e,e2)
 	e.t=30*5
 	
 	stung(e2)
+end
+
+function stingwolf(e,e2)
+	-- todo
+	stungwolf(e2,e)
 end
 
 function trystinging(e)
@@ -1299,6 +1306,8 @@ function apple_collide(e,e2)
 			emap_remove(e)
 		end)
 		return true
+	elseif e2.k=='wolf' then
+		feedwolf(e2)
 	end
 end
 
@@ -1365,14 +1374,25 @@ function makewolf(x,y)
 	return e
 end
 
-function wolf_collide(e,e2)
-end
-
 function drawwolf(e)
 	spr(10,e.x-e.offx,e.y-e.offy)
+	-- todo
+end
+
+function wolf_collide(e,e2)
+	-- todo
 end
 
 function tickwolf(e)
+	-- todo
+end
+
+function feedwolf(e)
+	-- todo
+end
+
+function stungwolf(e,e2)
+	-- todo
 end
 
 __gfx__
