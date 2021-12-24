@@ -1279,17 +1279,24 @@ end
 function drawtreelast(e)
 	local hit = e.hitted or 0
 	local x=e.x-e.offx + hit
+	if e.shaker then
+		if (e.shaker.shake()) x+=1
+	end
 	spr(e.s,x,e.y-8,2,1)
 end
 
 function drawtree(e)
 	local hit = e.hitted or 0
 	local x=e.x-e.offx + hit
+	if e.shaker then
+		if (e.shaker.shake()) x+=1
+	end
 	spr(e.s+16,x,e.y,2,1)
 end
 
 function ticktree(e)
 	if (e.hitted) e.hitted=nil
+	if (e.shaker) e.shaker.tick()
 end
 
 function hittree(e, d)
@@ -1300,6 +1307,7 @@ function hittree(e, d)
 		local y=e.y/8-1
 		local item = e.itemfn(x,y,d)
 		e.itemfn=nil
+		e.shaker=nil
 		
 		item:toss(d)
 	end
