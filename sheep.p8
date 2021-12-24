@@ -821,34 +821,38 @@ function ticksheep(e)
 		end
 	end
 	
-	-- run from wolves
-	local w=findrad(e,2,{'wolf'})
-	if w then
-		local dx=w.x-e.x
-		local dy=w.y-e.y
-		local adx=abs(dx)
-		local ady=abs(dy)
-		if (adx>5) e.mx = -sgn(dx)
-		if (ady>5) e.my = -sgn(dy)
-		e.t = 30
-	elseif e.friend then
-		local dx=e.friend.x-e.x
-		local dy=e.friend.y-e.y
-		local adx,ady=abs(dx),abs(dy)
-		e.mx,e.my=0,0
+	-- choose new action when idle
+	if e.t == 0 then
 		
-		if adx>50 or ady>50 then
-			e.friend=nil
+		-- run from wolves
+		local w=findrad(e,2,{'wolf'})
+		if w then
+			local dx=w.x-e.x
+			local dy=w.y-e.y
+			local adx=abs(dx)
+			local ady=abs(dy)
+			if (adx>5) e.mx = -sgn(dx)
+			if (ady>5) e.my = -sgn(dy)
+			e.t = 30
 			return
 		end
 		
-		if (adx>10) e.mx=sgn(dx)
-		if (ady>10) e.my=sgn(dy)
-		return
-	end
-	
-	-- choose new action when idle
-	if e.t == 0 then
+		-- follow friend
+		if e.friend then
+			local dx=e.friend.x-e.x
+			local dy=e.friend.y-e.y
+			local adx,ady=abs(dx),abs(dy)
+			e.mx,e.my=0,0
+			
+			if adx>50 or ady>50 then
+				e.friend=nil
+				return
+			end
+			
+			if (adx>10) e.mx=sgn(dx)
+			if (ady>10) e.my=sgn(dy)
+			return
+		end
 		
 		-- find owner
 		if e.pet and not e.friend then
@@ -977,12 +981,11 @@ function homesheep_collide(e)
 end
 
 function tick_homesheep(e)
-	if not e.hearts then
-		e.hearts=animator(e,15,4,0,7)
-	end
-	
 	if e.hearts then
 		e.hearts=e.hearts.tick()
+	end
+	if not e.hearts then
+		e.hearts=animator(e,15,4,0,7)
 	end
 	
 	
