@@ -964,8 +964,10 @@ function sheep_collided(e,e2)
 		e.pet=nil
 		e.friend=nil
 		e.t=0
+		e.mt=0
 		e.mx=0
 		e.my=0
+		e.hearts=nil
 		e.speed = sheep_speed
 		
 		numsheep -= 1
@@ -978,33 +980,32 @@ function sheep_collided(e,e2)
 end
 
 function homesheep_collide(e)
+	-- they're fine.
+	-- they're home now.
 end
 
 function tick_homesheep(e)
-	if e.hearts then
-		e.hearts=e.hearts.tick()
-	end
-	if not e.hearts then
-		e.hearts=animator(e,15,4,0,7)
-	end
-	
-	
 	-- choose new action when idle
 	if e.t == 0 then
 		local still=rnd()<0.5
 		if still then
 			-- stand still for 2-3 sec
-			e.t = flr((rnd(1)+2)*30)
+			e.mt=flr((rnd(1)+2)*30)
+			e.t = e.mt
 			e.mx = 0
 			e.my = 0
 		else
 			-- walk for 1 sec
-			e.t = 30
+			e.mt = 30
+			e.t = e.mt
 			local e2=findrad(e,2,
 			 {'pasture'})
 			
-			e.mx=sgn(e2.x-e.x)
-			e.my=sgn(e2.y-e.y)
+			e.mx,e.my=0,0
+			if e2 then
+				e.mx=sgn(e2.x-e.x)
+				e.my=sgn(e2.y-e.y)
+			end
 		end
 	else
 		e.t -= 1
@@ -1013,6 +1014,11 @@ end
 
 function draw_homesheep(e)
 	drawsheep(e)
+	
+	local n=flr((e.mt-(e.t/8))%4)
+	local s=15+(n*16)
+	
+	spr(s,e.x,e.y-7)
 end
 
 -->8
