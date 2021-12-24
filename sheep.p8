@@ -532,7 +532,6 @@ function act_stick(p)
 			return true
 		elseif e.k=='sheep' then
 			hitsheep(e)
-			return true
 		end
 	end
 end
