@@ -778,36 +778,43 @@ function ticksheep(e)
 		e.hearts=e.hearts.tick()
 	end
 	
-	if not e.home then
-		if e.pet then
-			if not e.friend then
-				-- todo:
-				-- reuse bee chasing code
-				-- but change to radius
-				-- and make it generic
-				-- maybe it takes e.k?
-			end
-		end
+	if e.friend and not e.home then
+		local dx=e.friend.x-e.x
+		local dy=e.friend.y-e.y
+		local adx,ady=abs(dx),abs(dy)
+		e.mx,e.my=0,0
 		
-		if e.friend then
-			local dx=e.friend.x-e.x
-			local dy=e.friend.y-e.y
-			local adx,ady=abs(dx),abs(dy)
-			e.mx,e.my=0,0
-			
-			if adx>50 or ady>50 then
-				e.friend=nil
-				return
-			end
-			
-			if (adx>10) e.mx=sgn(dx)
-			if (ady>10) e.my=sgn(dy)
+		if adx>50 or ady>50 then
+			e.friend=nil
 			return
 		end
+		
+		if (adx>10) e.mx=sgn(dx)
+		if (ady>10) e.my=sgn(dy)
+		return
 	end
 	
 	-- choose new action when idle
 	if e.t == 0 then
+		
+		-- run from wolves
+		-- and find master
+		local e2 = findrad(e,2,
+	 	{'wolf','player'})
+	 
+	 if e2 then
+	 	if e2.k == 'wolf' then
+	 		-- todo: run away!
+	 		return
+	 	elseif e2.k == 'player' then
+	 		if e.pet and not e.friend then
+	 			e.friend = e2
+	 			return
+	 		end
+	 	end
+	 end
+		
+		-- otherwise choose action
 		local still=rnd()<0.5
 		
 		e.speed = sheep_speed
