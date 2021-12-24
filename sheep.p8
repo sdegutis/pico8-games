@@ -301,8 +301,8 @@ _playerbox=false
 _hitbox=false
 _hitsearch=false
 _sheepbox=false
-_mem=true
-_cpu=true
+_mem=false
+_cpu=false
 
 nextticks={}
 function nexttick(fn)
@@ -321,7 +321,7 @@ end
 function makeplayer(x,y,n)
 	local offx=3
 	local offy=2
-	e={
+	local e={
 		k='player',
 		x=x*8+offx,
 		y=y*8+offy,
@@ -769,6 +769,7 @@ end
 function feedsheep(e)
 	if (e.home) return
 	
+	e.hearts=animator(e,15,4,0,7)
 	e.pet=true
 end
 
@@ -991,19 +992,37 @@ function sting(e,e2)
 end
 
 function trystinging(e)
+	local e2 = findrad(e,2,
+	 {'player','wolf'})
 	
-	for x=-2,2 do
-		for y=-2,2 do
+	if e2 then
+		if e2.k=='player' then
+			e.t=60
+			e.chase=e2
+		end
+	end
+end
+
+function findrad(e,radius,ks)
+	-- todo: uhh, this is a square
+	--        not a circle.
+	--
+	--       we need to compare
+	--        distance using:
+	--
+	--       some math stuff.
+	--       ... or something.
+	
+	for x=-radius,radius do
+		for y=-radius,radius do
 			
 			local x1=e.x+e.w/2+x*8
 			local y1=e.y+e.h/2+y*8
 			local i=emapi(x1,y1)
 			
 			for e2 in all(emap[i]) do
-				if e2.k=='player' then
-					e.t=60
-					e.chase=e2
-					return
+				if count(ks, e2.k) > 0 then
+					return e2
 				end
 			end
 			
@@ -1189,6 +1208,10 @@ function apple_collide(e,e2)
 		return true
 	elseif e2.k=='sheep' then
 		feedsheep(e2)
+		nexttick(function()
+			emap_remove(e)
+		end)
+		return true
 	end
 end
 
