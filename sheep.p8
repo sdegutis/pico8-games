@@ -781,6 +781,17 @@ function drawsheep(e)
 	if e.hearts then
 		e.hearts.draw()
 	end
+	
+	if e.friend then
+		local p=e.friend
+		line(
+			p.x+p.w/2+p.d*p.w,
+			p.y+3,
+			e.x+e.w/2+e.d,
+			e.y,
+			4
+		)
+	end
 end
 
 function tosssheep(e,d)
