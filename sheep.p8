@@ -125,6 +125,9 @@ function replacetile(x,y)
 end
 
 function updategame()
+	if youwon then
+		return
+	end
 	
 	for fn in all(nextticks) do
 		fn()
@@ -225,6 +228,10 @@ function drawgame()
 		print('mem:'..tostr(stat(0)),
 			80,1,7)
 	end
+	
+	if youwon and time()%2<1 then
+		print("you won!", 50,1,10)
+	end
 end
 
 function round(n)
@@ -300,6 +307,12 @@ _cpu=true
 nextticks={}
 function nexttick(fn)
 	add(nextticks,fn)
+end
+
+function wongame()
+	_mem=false
+	_cpu=false
+	youwon=true
 end
 
 -->8
@@ -482,6 +495,7 @@ end
 function player_collide(e,e2)
 	if e2.k=='bees' then
 		sting(e2,e)
+		wongame()
 		return true
 	end
 end
