@@ -1100,6 +1100,8 @@ function findrad(e,radius,ks)
 	--       some math stuff.
 	--       ... or something.
 	
+	local found={}
+	
 	for x=-radius,radius do
 		for y=-radius,radius do
 			
@@ -1110,7 +1112,7 @@ function findrad(e,radius,ks)
 			for e2 in all(emap[i]) do
 				if e != e2 then
 					if count(ks, e2.k) > 0 then
-						return e2
+						add(found,e2)
 					end
 				end
 			end
@@ -1118,6 +1120,7 @@ function findrad(e,radius,ks)
 		end
 	end
 	
+	return rnd(found)
 end
 
 -->8
