@@ -1,87 +1,100 @@
-<style>
-  body {
-    background-color: #f7f7f7;
-  }
+<!DOCTYPE html>
+<html lang="en">
 
-  #games {
-    display: flex;
-    flex-wrap: wrap;
-  }
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games</title>
+  <style>
+    body {
+      background-color: #f7f7f7;
+    }
 
-  .group {
-    margin: 1em;
-    padding: 0 1em;
-    border-radius: 3px;
-    box-shadow: 0px 1px 3px 1px #0003;
-    background-color: #fff;
-  }
-</style>
+    #games {
+      display: flex;
+      flex-wrap: wrap;
+    }
 
-<h2>Games</h2>
+    .group {
+      margin: 1em;
+      padding: 0 1em;
+      border-radius: 3px;
+      box-shadow: 0px 1px 3px 1px #0003;
+      background-color: #fff;
+    }
+  </style>
+</head>
 
-<div id="games">
+<body>
+  <h1>Games</h1>
 
-  <div class="group">
-    <h3>Bomberman</h3>
-    <p>Version: <b>1.0</b></p>
-    <p><a href="bomberman.html">Play in Browser</a></p>
-    <p><a download href="bomberman.p8">Download .p8 File</a></p>
-    <p>Notes:</p>
-    <ul>
-      <li>To fix the 4 player bug, download latest Pico8</li>
-    </ul>
+  <div id="games">
+
+    <div class="group">
+      <h3>Bomberman</h3>
+      <p>Version: <b>1.0</b></p>
+      <p><a href="bomberman.html">Play in Browser</a></p>
+      <p><a download href="bomberman.p8">Download .p8 File</a></p>
+      <p>Notes:</p>
+      <ul>
+        <li>To fix the 4 player bug, download latest Pico8</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h3>Blocks</h3>
+      <p>Version: <b>1.0</b></p>
+      <p><a href="blocks.html">Play in Browser</a></p>
+      <p><a download href="blocks.p8">Download .p8 File</a></p>
+      <p>Features I need help with:</p>
+      <ul>
+        <li>Redo the graphics! You are a great artist, and this is <i>your</i> game!</li>
+        <li>Make level 7</li>
+        <li>Make level 8</li>
+        <li>Maybe redo the existing levels with harder puzzles?</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h3>Sheep</h3>
+      <p>Version: <b>1.0</b></p>
+      <p><a href="sheep.html">Play in Browser</a></p>
+      <p><a download href="sheep.p8">Download .p8 File</a></p>
+      <p>Things you should try:</p>
+      <ul>
+        <li>You can capture apples with a net! What can you throw them at?</li>
+        <li>Can you capture bees with a net? What happens when you throw them at things?</li>
+      </ul>
+      <p>Features I need help with:</p>
+      <ul>
+        <li>Redraw the graphics (you are better artists!)</li>
+        <li>Maybe make sheep more likely to follow other sheep</li>
+        <li>There could be a super-powerup that auto-leashes all sheep nearby!</li>
+        <li>Make more interactions between things.
+          <ul>
+            <li>Like, what happens if you throw bees at a bush?</li>
+            <li>Or, what happens if you throw an apple at a bees?</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h3>LP8</h3>
+      <p>Use Pico8 graphics and maps from Love2d</p>
+      <p><a download href="./lp8-1.0.zip">Download .zip File</a></p>
+      <p>Run main.lua inside Love2d for example usage.</p>
+      <p>Features:</p>
+      <ul>
+        <li>Make love2d image from any sprite, with any width/height (default 8x8)</li>
+        <li>Get sprite flags for individual sprites, or just get all sprite flags</li>
+        <li>Get all map data pointing to indexes in the spritesheet</li>
+        <li>Create your own actual Love2d fonts using pico8 sprites!</li>
+      </ul>
+    </div>
+
   </div>
+</body>
 
-  <div class="group">
-    <h3>Blocks</h3>
-    <p>Version: <b>1.0</b></p>
-    <p><a href="blocks.html">Play in Browser</a></p>
-    <p><a download href="blocks.p8">Download .p8 File</a></p>
-    <p>Features I need help with:</p>
-    <ul>
-      <li>Redo the graphics! You are a great artist, and this is <i>your</i> game!</li>
-      <li>Make level 7</li>
-      <li>Make level 8</li>
-      <li>Maybe redo the existing levels with harder puzzles?</li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h3>Sheep</h3>
-    <p>Version: <b>1.0</b></p>
-    <p><a href="sheep.html">Play in Browser</a></p>
-    <p><a download href="sheep.p8">Download .p8 File</a></p>
-    <p>Things you should try:</p>
-    <ul>
-      <li>You can capture apples with a net! What can you throw them at?</li>
-      <li>Can you capture bees with a net? What happens when you throw them at things?</li>
-    </ul>
-    <p>Features I need help with:</p>
-    <ul>
-      <li>Redraw the graphics (you are better artists!)</li>
-      <li>Maybe make sheep more likely to follow other sheep</li>
-      <li>There could be a super-powerup that auto-leashes all sheep nearby!</li>
-      <li>Make more interactions between things.
-        <ul>
-          <li>Like, what happens if you throw bees at a bush?</li>
-          <li>Or, what happens if you throw an apple at a bees?</li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h3>LP8</h3>
-    <p>Use Pico8 graphics and maps from Love2d</p>
-    <p><a download href="./lp8-1.0.zip">Download .zip File</a></p>
-    <p>Run main.lua inside Love2d for example usage.</p>
-    <p>Features:</p>
-    <ul>
-      <li>Make love2d image from any sprite, with any width/height (default 8x8)</li>
-      <li>Get sprite flags for individual sprites, or just get all sprite flags</li>
-      <li>Get all map data pointing to indexes in the spritesheet</li>
-      <li>Create your own actual Love2d fonts using pico8 sprites!</li>
-    </ul>
-  </div>
-
-</div>
+</html>
