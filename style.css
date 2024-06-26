@@ -17,4 +17,6 @@ canvas {
   background-color: #000;
   image-rendering: pixelated;
   cursor: none;
+  width: calc(320px * 5);
+  height: calc(180px * 5);
 }
