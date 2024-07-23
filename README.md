@@ -1,5 +1,3 @@
-About 2-3 years of Pico-8 games made with and for my kids.
-
 Newer:
 
 | File      | What                             |
