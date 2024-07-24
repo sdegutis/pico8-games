@@ -7,29 +7,6 @@ __lua__
 -- the sheep are lost!
 -- find them, bring them home.
 
--- cls()
--- flip()
--- reload(0, 0, 0x4300, "sheep.p8")
-
-b={
-	x=64,y=64,
-	dx=1,dy=1,
-	vx=0,vy=0,
-	cx=0,cy=0,
-	c=10,	t=0,
-}
-
-function updatebee(b)
-	b.t += 1
-	
-	b.vx=mid(-3,b.vx+b.dx*0.2,3)
-	
-	if(abs(b.vx)>3)b.dx=-b.dx
-	
-	b.cx = mid(-10,b.cx+b.vx,10)
-
-end
-
 function _init()
 	emap={}
 	for y=0,63 do
@@ -201,9 +178,6 @@ function updategame()
 			end
 		end
 	end
-	
-	updatebee(b)
-	
 end
 
 function drawgame()
@@ -283,10 +257,6 @@ function drawgame()
 		
 		spr(74,50,youwon,4,4)
 	end
-	
-	-- bee test
-	camera()
-	pset(b.x+b.cx, b.y+b.cy, b.c)
 end
 
 function round(n)
@@ -1095,7 +1065,14 @@ function makebees(x,y)
 		tick=tickbees,
 		toss=tossbees,
 		throw=throwbees,
+    bees={},
 	}
+  for i=1,10 do
+    add(e.bees, {
+      x=4,y=4,
+      c=rnd()<.5 and 10 or 9
+    })
+  end
 	add_to_emap(e)
 	return e
 end
@@ -1114,9 +1091,9 @@ function tossbees(e, d)
 end
 
 function drawbees(e)
-	local s=8
-	s += (flr(e.animt/5)%3) * 16
-	spr(s, e.x-e.offx, e.y-e.offy)
+  for b in all(e.bees) do
+    pset(e.x+b.x, e.y+b.y, b.c)
+  end
 end
 
 function tickbees(e)
@@ -1146,6 +1123,10 @@ function tickbees(e)
 		trystinging(e)
 	end
 	
+  for b in all(e.bees) do
+    b.x = mid(0, b.x+rnd(2)-1, 7)
+    b.y = mid(0, b.y+rnd(2)-1, 7)
+  end
 end
 
 function bees_collide(e,e2)
