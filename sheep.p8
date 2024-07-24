@@ -11,6 +11,25 @@ __lua__
 -- flip()
 -- reload(0, 0, 0x4300, "sheep.p8")
 
+b={
+	x=64,y=64,
+	dx=1,dy=1,
+	vx=0,vy=0,
+	cx=0,cy=0,
+	c=10,	t=0,
+}
+
+function updatebee(b)
+	b.t += 1
+	
+	-- b.vx=mid(-3,b.vx+b.dx*0.2,3)
+	
+	-- if(abs(b.vx)>3)b.dx=-b.dx
+	
+	-- b.cx = mid(-10,b.cx+b.vx,10)
+
+end
+
 function _init()
 	emap={}
 	for y=0,63 do
@@ -183,6 +202,8 @@ function updategame()
 		end
 	end
 	
+	updatebee(b)
+	
 end
 
 function drawgame()
@@ -262,6 +283,10 @@ function drawgame()
 		
 		spr(74,50,youwon,4,4)
 	end
+	
+	-- bee test
+	camera()
+	pset(b.x+b.cx, b.y+b.cy, b.c)
 end
 
 function round(n)
