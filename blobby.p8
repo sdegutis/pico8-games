@@ -136,12 +136,6 @@ function updatebubble(e)
 	e.y = e.y-0.2
 end
 
-speed=1
-maxspeed=3
-gravity=1
-maxgrav=9
-jumpspeed=7
-
 function updateplayer()
 	local p = player
 
@@ -169,10 +163,10 @@ function updateplayer()
 		end
 	end
 
-	if     btn(➡️) then p.d= 1 p.vx=min(p.vx+speed, maxspeed)
-	elseif btn(⬅️) then p.d=-1 p.vx=max(p.vx-speed,-maxspeed)
-	elseif p.vx >  speed then p.vx = p.vx - speed
-	elseif p.vx < -speed then p.vx = p.vx + speed
+	if     btn(➡️) then p.d= 1 p.vx=min(p.vx+1, 3)
+	elseif btn(⬅️) then p.d=-1 p.vx=max(p.vx-1,-3)
+	elseif p.vx >  1 then p.vx = p.vx - 1
+	elseif p.vx < -1 then p.vx = p.vx + 1
 	elseif p.vx != 0 then p.vx=0
 	end
 	if p.vx then
@@ -181,9 +175,9 @@ function updateplayer()
 	end
 
 	if p.grounded and btn(🅾️) then
-		p.vy = -jumpspeed
+		p.vy = -7
 	else
-		p.vy = min(p.vy + gravity, maxgrav)
+		p.vy = min(p.vy + 1, 9)
 	end
 
 	if trymove(p, 'y', p.vy) then
