@@ -10,6 +10,7 @@ function _init()
 	player=nil
 	walls={}
 	chests={}
+	bubbles={}
 
 	cx=0 cy=0
 
@@ -33,7 +34,7 @@ function _init()
 					end
 				end
 
-				makechest(s,x*8,y*8,tool_bubble)
+				makechest(s,x*8,y*8)
 				mset(x,y,0)
 			end
 		end
@@ -44,14 +45,16 @@ end
 
 function _update()
 	player:update()
+	for e in all(bubbles) do e:update() end
 end
 
 function _draw()
 	cls()
 	camera(cx,cy)
 	map()
-	for e in all(walls) do e:draw() end
-	for e in all(chests) do e:draw() end
+	for e in all(walls)   do e:draw() end
+	for e in all(chests)  do e:draw() end
+	for e in all(bubbles) do e:draw() end
 	player:draw()
 end
 
@@ -65,7 +68,7 @@ function movecamera()
 	end
 end
 
-function makechest(s,x,y,tool)
+function makechest(s,x,y)
 	add(chests, {
 		k='chest',
 		s=s,x=x,y=y,
@@ -109,16 +112,29 @@ function drawsimple(e)
 	spr(e.s, e.x, e.y)
 end
 
+function updatebubble(e)
+	e.y = e.y-0.2
+end
+
 speed=0.5
 maxspeed=3
 gravity=0.80
 maxgrav=9
 jumpspeed=7
 
-function updateplayer(p)
-	if p.chest and btn(❎) then
+function updateplayer(p, t)
+	if p.chest and btnp(❎) then
 		del(chests,p.chest)
 		p.chest=nil
+		p.wand=true
+	elseif p.wand and btnp(❎) then
+		add(bubbles, {
+			x=p.x,
+			y=p.y-8,
+			s=bubblespr,
+			draw=drawsimple,
+			update=updatebubble,
+		})
 	end
 
 	    if btn(➡️) then p.d= 1 p.vx=min(p.vx+speed,maxspeed)
@@ -133,7 +149,7 @@ function updateplayer(p)
 		end
 	end
 
-	if p.grounded and btn(🅾️) then
+	if p.grounded and btnp(🅾️) then
 		p.vy = -jumpspeed
 	else
 		p.vy = min(p.vy + gravity, maxgrav)
