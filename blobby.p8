@@ -52,7 +52,7 @@ function _draw()
 	camera(cx,cy)
 	map()
 	for e in all(ents) do
-		if (e.draw) e:draw()
+		e:draw()
 	end
 end
 
