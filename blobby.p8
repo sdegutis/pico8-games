@@ -45,7 +45,7 @@ function _init()
 end
 
 function _update()
-	updateplayer(player)
+	updateplayer()
 	for e in all(bubbles) do updatebubble(e) end
 	for e in all(going) do   updategoing(e) end
 end
@@ -58,7 +58,7 @@ function _draw()
 	for e in all(chests)  do drawsimple(e) end
 	for e in all(bubbles) do drawsimple(e) end
 	for e in all(going)   do drawgoing(e) end
-	drawplayer(player)
+	drawplayer()
 end
 
 function movecamera()
@@ -96,6 +96,7 @@ function makesolid(s,x,y,semi)
 end
 
 function drawplayer(p)
+	local p = player
 	spr(p.s, p.x, p.y, 1, 1, p.d<0)
 	-- rect(p.x, p.y, p.x+7,p.y+7,2)
 
@@ -136,7 +137,8 @@ gravity=0.80
 maxgrav=9
 jumpspeed=7
 
-function updateplayer(p, t)
+function updateplayer()
+	local p = player
 	if p.chest and btnp(❎) then
 		del(chests,p.chest)
 		add(going,p.chest)
