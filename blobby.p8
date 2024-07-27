@@ -97,7 +97,7 @@ function makesolid(s,x,y,semi)
 	})
 end
 
-function drawplayer(p)
+function drawplayer()
 	local p = player
 	spr(p.s, p.x, p.y, 1, 1, p.d<0)
 	-- rect(p.x, p.y, p.x+7,p.y+7,2)
