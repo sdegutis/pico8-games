@@ -44,8 +44,8 @@ function _init()
 end
 
 function _update()
-	player:update()
-	for e in all(bubbles) do e:update() end
+	updateplayer(player)
+	for e in all(bubbles) do updatebubble(e) end
 end
 
 function _draw()
@@ -83,7 +83,6 @@ function makeplayer(s,x,y)
 		x=x,y=y,
 		vx=0,vy=0,
 		draw=drawplayer,
-		update=updateplayer,
 	}
 end
 
@@ -134,7 +133,6 @@ function updateplayer(p, t)
 			y=p.y-8,
 			s=bubblespr,
 			draw=drawsimple,
-			update=updatebubble,
 		})
 	end
 
