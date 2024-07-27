@@ -54,11 +54,11 @@ function _draw()
 	cls()
 	camera(cx,cy)
 	map()
-	for e in all(walls)   do e:draw() end
-	for e in all(chests)  do e:draw() end
-	for e in all(bubbles) do e:draw() end
+	for e in all(walls)   do drawsimple(e) end
+	for e in all(chests)  do drawsimple(e) end
+	for e in all(bubbles) do drawsimple(e) end
 	for e in all(going)   do drawgoing(e) end
-	player:draw()
+	drawplayer(player)
 end
 
 function movecamera()
@@ -75,7 +75,6 @@ function makechest(s,x,y)
 	add(chests, {
 		k='chest',
 		s=s,x=x,y=y,
-		draw=drawsimple,
 	})
 end
 
@@ -85,7 +84,6 @@ function makeplayer(s,x,y)
 		s=s,d=1,
 		x=x,y=y,
 		vx=0,vy=0,
-		draw=drawplayer,
 	}
 end
 
@@ -93,7 +91,6 @@ function makesolid(s,x,y,semi)
 	add(walls, {
 		k='solid',
 		s=s,x=x,y=y,
-		draw=drawsimple,
 		semi=semi,
 	})
 end
@@ -150,7 +147,6 @@ function updateplayer(p, t)
 			x=p.x,
 			y=p.y-8,
 			s=bubblespr,
-			draw=drawsimple,
 		})
 	end
 
