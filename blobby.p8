@@ -8,6 +8,9 @@ poke(0x5F36, 0x8)
 
 function _init()
 	player=nil
+
+	emap={}
+
 	walls={}
 	chests={}
 	bubbles={}
@@ -30,6 +33,10 @@ function _init()
 	end
 
 	movecamera()
+end
+
+function emapi(x,y)
+	return flr(y/8) * 128 + flr(x/8)
 end
 
 function findsprite(f)
