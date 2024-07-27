@@ -7,10 +7,11 @@ cam=2
 poke(0x5F36, 0x8)
 
 function _init()
-	ents={}
+	player=nil
+	walls={}
+	chests={}
 
-	cx=0
-	cy=0
+	cx=0 cy=0
 
 	for y=0,63 do
 		for x=0,127 do
@@ -42,18 +43,16 @@ function _init()
 end
 
 function _update()
-	for e in all(ents) do
-		if (e.update) e:update()
-	end
+	player:update()
 end
 
 function _draw()
 	cls()
 	camera(cx,cy)
 	map()
-	for e in all(ents) do
-		e:draw()
-	end
+	for e in all(walls) do e:draw() end
+	for e in all(chests) do e:draw() end
+	player:draw()
 end
 
 function movecamera()
@@ -67,11 +66,11 @@ function movecamera()
 end
 
 function makechest(s,x,y,tool)
-	add(ents, {
+	add(chests, {
 		k='chest',
 		s=s,x=x,y=y,
 		draw=drawsimple,
-	}, 1)
+	})
 end
 
 function makeplayer(s,x,y)
@@ -83,16 +82,15 @@ function makeplayer(s,x,y)
 		draw=drawplayer,
 		update=updateplayer,
 	}
-	add(ents, player)
 end
 
 function makesolid(s,x,y,semi)
-	add(ents, {
+	add(walls, {
 		k='solid',
 		s=s,x=x,y=y,
 		draw=drawsimple,
 		semi=semi,
-	}, 1)
+	})
 end
 
 function drawplayer(p)
@@ -100,8 +98,10 @@ function drawplayer(p)
 	-- rect(p.x, p.y, p.x+7,p.y+7,2)
 
 	if p.chest then
-		rect(p.x, p.y, p.x+7,p.y+7,2)
-		-- rect(p.x,p.y,p.x+10,p.y+5,3)
+		circfill(p.x+4, p.y-6, 4, 0)
+		circ    (p.x+4, p.y-6, 4, 6)
+		line(p.x+3,p.y-7,p.x+5,p.y-5,6)
+		line(p.x+5,p.y-7,p.x+3,p.y-5,6)
 	end
 end
 
@@ -116,6 +116,11 @@ maxgrav=9
 jumpspeed=7
 
 function updateplayer(p)
+	if p.chest and btn(❎) then
+		del(chests,p.chest)
+		p.chest=nil
+	end
+
 	    if btn(➡️) then p.d= 1 p.vx=min(p.vx+speed,maxspeed)
 	elseif btn(⬅️) then p.d=-1 p.vx=max(p.vx-speed,-maxspeed)
 	elseif p.vx > speed then p.vx = p.vx - speed
@@ -141,27 +146,34 @@ function updateplayer(p)
 		p.grounded=p.vy>0
 		p.vy = 0
 	end
+
+	p.chest=nil
+	for o in all(chests) do
+		if p.x >= o.x - 7 and
+			 p.y >= o.y - 7 and
+			 p.x < o.x + 8  and
+			 p.y < o.y + 8
+		then
+			p.chest=o
+			break
+		end
+	end
 end
 
 function trymove(e,d,v)
-	e.chest=nil
 	local s = sgn(v)
 	for i=s,v,s do
 		e[d] += s
 
-		for o in all(ents) do
-			if o != e and e.x >= o.x - 7
-								and e.y >= o.y - 7
-								and e.x < o.x + 8
-								and e.y < o.y + 8
+		for o in all(walls) do
+			if e.x >= o.x - 7 and
+		     e.y >= o.y - 7 and
+		     e.x < o.x + 8  and
+		     e.y < o.y + 8
 			then
-				if o.k=='chest' then
-					e.chest=o
-				elseif o.k=='solid' then
-					if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
-						e[d] -= s
-						return false
-					end
+				if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
+					e[d] -= s
+					return false
 				end
 			end
 		end
