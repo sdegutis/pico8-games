@@ -180,11 +180,7 @@ function updateplayer()
 
 	p.chest=nil
 	for o in all(chests) do
-		if p.x >= o.x - 7 and
-			 p.y >= o.y - 7 and
-			 p.x < o.x + 8  and
-			 p.y < o.y + 8
-		then
+		if overlaps(p,o) then
 			p.chest=o
 			break
 		end
@@ -193,17 +189,20 @@ function updateplayer()
 	movecamera()
 end
 
+function overlaps(a,b)
+	return a.x >= b.x - 7
+	   and a.y >= b.y - 7
+	   and a.x < b.x + 8
+	   and a.y < b.y + 8
+end
+
 function trymove(e,d,v)
 	local s = sgn(v)
 	for i=s,v,s do
 		e[d] += s
 
 		for o in all(walls) do
-			if e.x >= o.x - 7 and
-		     e.y >= o.y - 7 and
-		     e.x < o.x + 8  and
-		     e.y < o.y + 8
-			then
+			if overlaps(e,o) then
 				if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
 					e[d] -= s
 					return false
