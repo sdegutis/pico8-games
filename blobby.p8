@@ -146,7 +146,6 @@ function updateplayer(p, t)
 	end
 	if p.vx then
 		if trymove(p, 'x', p.vx) then
-			movecamera()
 		end
 	end
 
@@ -158,7 +157,6 @@ function updateplayer(p, t)
 
 	if trymove(p, 'y', p.vy) then
 		p.grounded=false
-		movecamera();
 	else
 		p.grounded=p.vy>0
 		p.vy = 0
@@ -175,6 +173,8 @@ function updateplayer(p, t)
 			break
 		end
 	end
+
+	movecamera()
 end
 
 function trymove(e,d,v)
