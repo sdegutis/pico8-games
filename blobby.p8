@@ -28,13 +28,7 @@ function _init()
 				makeplayer(s,x*8,y*8)
 				mset(x,y,0)
 			elseif fget(s, 7) then
-				for i=0,255 do
-					if fget(i,7) and s!=i then
-						bubblespr=i
-						break
-					end
-				end
-
+				bubblespr=findotherspr(s,7)
 				makechest(s,x*8,y*8)
 				mset(x,y,0)
 			end
@@ -42,6 +36,14 @@ function _init()
 	end
 
 	movecamera()
+end
+
+function findotherspr(s,f)
+	for i=0,255 do
+		if fget(i,f) and s!=i then
+			return i
+		end
+	end
 end
 
 function _update()
