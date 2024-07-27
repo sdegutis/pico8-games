@@ -136,9 +136,9 @@ function updatebubble(e)
 	e.y = e.y-0.2
 end
 
-speed=0.5
+speed=1
 maxspeed=3
-gravity=0.80
+gravity=1
 maxgrav=9
 jumpspeed=7
 
