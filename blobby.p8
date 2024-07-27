@@ -65,9 +65,9 @@ end
 
 speed=0.5
 maxspeed=3
-gravity=0.5
-maxgrav=7
-jumpspeed=5
+gravity=0.80
+maxgrav=9
+jumpspeed=7
 
 function updateplayer(p)
 	    if btn(➡️) then p.vx=min(p.vx+speed,maxspeed)
@@ -76,7 +76,7 @@ function updateplayer(p)
 	elseif p.vx < -speed then p.vx = p.vx + speed
 	elseif p.vx != 0 then p.vx=0
 	end
-	if (p.vx) trymove(p, p.vx, 0)
+	if (p.vx) trymove(p, 'x', p.vx)
 
 	if p.grounded and btn(❎) then
 		p.vy = -jumpspeed
@@ -84,28 +84,28 @@ function updateplayer(p)
 		p.vy = min(p.vy + gravity, maxgrav)
 	end
 	
-	p.grounded = not trymove(p, 0, p.vy)
+	p.grounded = not trymove(p, 'y', p.vy)
 	if p.grounded then
 		p.vy = 0
 	end
 end
 
-function trymove(e,x,y)
-	e.x += x
-	e.y += y
+function trymove(e,d,v)
+	local s = sgn(v)
+	for i=s,v,s do
+		e[d] += s
 
-	for o in all(ents) do
-		if o != e and e.x >= o.x - 7
-		          and e.y >= o.y - 7
-		          and e.x < o.x + 7
-		          and e.y < o.y + 7
-		then
-			e.x -= x
-			e.y -= y
-			return false
+		for o in all(ents) do
+			if o != e and e.x >= o.x - 7
+								and e.y >= o.y - 7
+								and e.x < o.x + 7
+								and e.y < o.y + 7
+			then
+				e[d] -= s
+				return false
+			end
 		end
 	end
-
 	return true
 end
 
