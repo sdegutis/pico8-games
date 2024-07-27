@@ -113,6 +113,7 @@ function drawsimple(e)
 end
 
 function updatebubble(e)
+	e.x += cos(t()%2/2)*0.3
 	e.y = e.y-0.2
 end
 
@@ -149,7 +150,7 @@ function updateplayer(p, t)
 		end
 	end
 
-	if p.grounded and btnp(🅾️) then
+	if p.grounded and btn(🅾️) then
 		p.vy = -jumpspeed
 	else
 		p.vy = min(p.vy + gravity, maxgrav)
