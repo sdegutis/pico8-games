@@ -138,7 +138,7 @@ function updateplayer(p, t)
 		})
 	end
 
-	    if btn(➡️) then p.d= 1 p.vx=min(p.vx+speed,maxspeed)
+	if     btn(➡️) then p.d= 1 p.vx=min(p.vx+speed,maxspeed)
 	elseif btn(⬅️) then p.d=-1 p.vx=max(p.vx-speed,-maxspeed)
 	elseif p.vx > speed then p.vx = p.vx - speed
 	elseif p.vx < -speed then p.vx = p.vx + speed
