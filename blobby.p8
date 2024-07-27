@@ -21,10 +21,10 @@ function _init()
 	for y=0,63 do
 		for x=0,127 do
 			local s = mget(x,y)
-			if     fget(s, 0) then  mset(x,y,0) makesolid(s,x*8,y*8)
-			elseif fget(s, 1) then  mset(x,y,0) makesolid(s,x*8,y*8,true)
-			elseif fget(s, 3) then  mset(x,y,0) makeplayer(s,x*8,y*8)
-			elseif fget(s, 7) then  mset(x,y,0) makechest(chestspr,x*8,y*8,'wand')
+			if     fget(s, 0) then mset(x,y,0) makesolid(s,x*8,y*8)
+			elseif fget(s, 1) then mset(x,y,0) makesolid(s,x*8,y*8,true)
+			elseif fget(s, 3) then mset(x,y,0) makeplayer(s,x*8,y*8)
+			elseif fget(s, 7) then mset(x,y,0) makechest(chestspr,x*8,y*8,'wand')
 			end
 		end
 	end
