@@ -69,8 +69,8 @@ function movecamera()
 		cx = mid(0, 128*8-128, player.x+4-64)
 		cy = mid(0,  64*8-128, player.y+4-64)
 	elseif cam==2 then
-		cx = flr(player.x/128)*128
-		cy = flr(player.y/128)*128
+		cx = flr((player.x+4)/128)*128
+		cy = flr((player.y+4)/128)*128
 	end
 end
 
