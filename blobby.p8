@@ -10,11 +10,7 @@ function _init()
 	player=nil
 
 	emap={}
-
-	walls={}
-	chests={}
-	bubbles={}
-	going={}
+	ents={}
 
 	chestspr=findsprite(2)
 	bubblespr=findsprite(7)
@@ -36,7 +32,19 @@ function _init()
 end
 
 function emapi(x,y)
-	return flr(y/8) * 128 + flr(x/8)
+	local x = flr((x+4)/128)*128
+	local y = flr((y+4)/128)*128
+	return y*128+x
+end
+
+function add_to_emap(ent)
+	local i = emapi(ent.x,ent.y)
+	emap[i] = emap[i] or {}
+	add(emap[i], ent)
+end
+
+function rement(e)
+		-- TODO
 end
 
 function findsprite(f)
@@ -48,37 +56,52 @@ function findsprite(f)
 end
 
 function _update()
-	updateplayer()
-	for e in all(bubbles) do updatebubble(e) end
-	for e in all(going)   do updategoing(e) end
+	for e in all(ents) do
+		if e.update then
+			e:update()
+		end
+	end
+	player:update()
 end
 
 function _draw()
 	cls()
 	camera(cx,cy)
 	map()
-	for e in all(walls)   do drawsimple(e) end
-	for e in all(chests)  do drawsimple(e) end
-	for e in all(bubbles) do drawsimple(e) end
-	for e in all(going)   do drawgoing(e) end
-	drawplayer()
+	for i=1,3 do
+		for e in all(ents) do
+			if e.layer == i then
+				e:draw()
+			end
+		end
+	end
+	player:draw()
 end
 
 function movecamera()
+	local x,y
+
 	if cam==1 then
-		cx = mid(0, 128*8-128, player.x+4-64)
-		cy = mid(0,  64*8-128, player.y+4-64)
+		x = mid(0, 128*8-128, player.x+4-64)
+		y = mid(0,  64*8-128, player.y+4-64)
 	elseif cam==2 then
-		cx = flr((player.x+4)/128)*128
-		cy = flr((player.y+4)/128)*128
+		x = flr((player.x+4)/128)*128
+		y = flr((player.y+4)/128)*128
+	end
+
+	if x!=cx and y!=cy then
+		cx=x cy=y
+		ents=emap[emapi(x,y)]
 	end
 end
 
 function makechest(s,x,y,tool)
-	add(chests, {
+	add_to_emap({
 		k='chest',
 		s=s,x=x,y=y,
 		tool=tool,
+		draw=drawsimple,
+		layer=1,
 	})
 end
 
@@ -88,14 +111,19 @@ function makeplayer(s,x,y)
 		s=s,d=1,
 		x=x,y=y,
 		vx=0,vy=0,
+		draw=drawplayer,
+		layer=2,
+		update=updateplayer,
 	}
 end
 
 function makesolid(s,x,y,semi)
-	add(walls, {
+	add_to_emap({
 		k='solid',
 		s=s,x=x,y=y,
 		semi=semi,
+		draw=drawsimple,
+		layer=1,
 	})
 end
 
@@ -120,7 +148,7 @@ function updategoing(e)
 	e.t = e.t or 1
 	e.t += 1
 	if e.t == 20 then
-		del(going,e)
+		rement(e)
 	end
 end
 
@@ -138,27 +166,32 @@ end
 function updateplayer()
 	local p = player
 
+	-- local i0 = emapi(p.x,p.y)
+	
 	if btnp(❎) then
 		if p.chest then
-			del(chests,p.chest)
-			add(going,p.chest)
+			p.chest.update=updategoing
+			p.chest.draw=drawgoing
 			if p.chest.tool == 'wand' then
 				p.wand=true
 			end
 			p.chest=nil
 		elseif p.wand then
 			if p.bubble then
-				add(going, p.bubble)
-				del(bubbles, p.bubble)
+				p.bubble.update=updategoing
+				p.bubble.draw=drawgoing
 			end
 	
 			p.bubble = {
 				x=p.x+10*p.d,
 				y=p.y,
 				s=bubblespr,
+				draw=drawsimple,
+				layer=3,
+				update=updatebubble,
 			}
 	
-			add(bubbles, p.bubble)
+			add_to_emap(p.bubble)
 		end
 	end
 
@@ -187,14 +220,19 @@ function updateplayer()
 	end
 
 	p.chest=nil
-	for o in all(chests) do
-		if overlaps(p,o) then
+	for o in all(ents) do
+		if o.k=='chest' and overlaps(p,o) then
 			p.chest=o
 			break
 		end
 	end
 
 	movecamera()
+	-- local i1 = emapi(p.x,p.y)
+	-- if i0!=i1 then
+	-- 	del(emap[i0],p)
+	-- 	add(emap[i1],p)
+	-- end
 end
 
 function overlaps(a,b)
@@ -209,8 +247,8 @@ function trymove(e,d,v)
 	for i=s,v,s do
 		e[d] += s
 
-		for o in all(walls) do
-			if overlaps(e,o) then
+		for o in all(ents) do
+			if o.k=='solid' and overlaps(e,o) then
 				if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
 					e[d] -= s
 					return false
@@ -306,13 +344,13 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000042
 42000000000000000000000000000000000000000000000000000000000000004200000000000000002000000000004200000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000042
-42000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000004200000000000000000000000000000000
+42000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000042
-42000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000004200000000000000000000000000000000
+42000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000042
-42000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000004200000000000000000000000000000000
+42000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000042
-42000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000004200000000000000000000000000000000
+42000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000042
 42000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000004200000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000042
