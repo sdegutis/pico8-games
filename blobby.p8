@@ -250,7 +250,9 @@ function trymove(e,d,v)
 						if v<0 then
 							o.y += s
 						elseif v>0 then
+							e.y -= s
 							o.y += s
+							return false
 						end
 					end
 				end
