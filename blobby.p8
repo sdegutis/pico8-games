@@ -2,8 +2,6 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 
-cam=2
-
 poke(0x5F36, 0x8)
 
 function _init()
@@ -79,20 +77,9 @@ function _draw()
 end
 
 function movecamera()
-	local x,y
-
-	if cam==1 then
-		x = mid(0, 128*8-128, player.x+4-64)
-		y = mid(0,  64*8-128, player.y+4-64)
-	elseif cam==2 then
-		x = flr((player.x+4)/128)*128
-		y = flr((player.y+4)/128)*128
-	end
-
-	if x!=cx and y!=cy then
-		cx=x cy=y
-		ents=emap[emapi(x,y)]
-	end
+	cx=flr((player.x+4)/128)*128
+	cy=flr((player.y+4)/128)*128
+	ents=emap[cy*128+cx]
 end
 
 function makechest(s,x,y,tool)
@@ -145,7 +132,6 @@ function drawsimple(e)
 end
 
 function updategoing(e)
-	e.t = e.t or 1
 	e.t += 1
 	if e.t == 20 then
 		rement(e)
@@ -163,23 +149,25 @@ function updatebubble(e)
 	e.y = e.y-0.2
 end
 
+function startgoing(e)
+	e.t=0
+	e.update=updategoing
+	e.draw=drawgoing
+end
+
 function updateplayer()
 	local p = player
-
-	-- local i0 = emapi(p.x,p.y)
 	
 	if btnp(❎) then
 		if p.chest then
-			p.chest.update=updategoing
-			p.chest.draw=drawgoing
+			startgoing(p.chest)
 			if p.chest.tool == 'wand' then
 				p.wand=true
 			end
 			p.chest=nil
 		elseif p.wand then
 			if p.bubble then
-				p.bubble.update=updategoing
-				p.bubble.draw=drawgoing
+				startgoing(p.bubble)
 			end
 	
 			p.bubble = {
@@ -228,11 +216,6 @@ function updateplayer()
 	end
 
 	movecamera()
-	-- local i1 = emapi(p.x,p.y)
-	-- if i0!=i1 then
-	-- 	del(emap[i0],p)
-	-- 	add(emap[i1],p)
-	-- end
 end
 
 function overlaps(a,b)
