@@ -42,7 +42,7 @@ function add_to_emap(ent)
 end
 
 function rement(e)
-		-- TODO
+	del(emap[emapi(e.x,e.y)],e)
 end
 
 function findsprite(f)
