@@ -1,19 +1,20 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
+-- blobby
 
-poke(0x5F36, 0x8)
+poke(0x5f36, 0x8)
 
 function _init()
-	player=nil
-
 	emap={}
-	ents={}
+	for y=0,63 do
+		for x=0,127 do
+			emap[y*128+x]={}
+		end
+	end
 
 	chestspr=findsprite(2)
 	bubblespr=findsprite(7)
-
-	cx=0 cy=0
 
 	for y=0,63 do
 		for x=0,127 do
@@ -25,24 +26,26 @@ function _init()
 			end
 		end
 	end
-
-	movecamera()
 end
 
-function emapi(x,y)
-	local x = flr((x+4)/128)*128
-	local y = flr((y+4)/128)*128
-	return y*128+x
+function emap_add(ent)
+	emap_add_xy(ent,ent.x,ent.y)
+	emap_add_xy(ent,ent.x+7,ent.y)
+	emap_add_xy(ent,ent.x,ent.y+7)
+	emap_add_xy(ent,ent.x+7,ent.y+7)
 end
 
-function add_to_emap(ent)
-	local i = emapi(ent.x,ent.y)
-	emap[i] = emap[i] or {}
-	add(emap[i], ent)
+function emap_add_xy(ent,x,y)
+	local i = flr(y/8)*128+flr(x/8)
+	emap[i][ent]=true
+	ent.slots[emap[i]]=true
 end
 
-function rement(e)
-	del(emap[emapi(e.x,e.y)],e)
+function emap_rem(e)
+	for ents in pairs(e.slots) do
+		ents[e]=nil
+	end
+	e.slots={}
 end
 
 function findsprite(f)
@@ -54,37 +57,53 @@ function findsprite(f)
 end
 
 function _update()
-	for e in all(ents) do
-		if e.update then
-			e:update()
+	cx=flr((player.x+4)/128)*128
+	cy=flr((player.y+4)/128)*128
+
+	local seen={}
+	for y=0,15 do
+		for x=0,15 do
+			local mx = (cx/8)+x
+			local my = (cy/8)+y
+			for e in pairs(emap[my*128+mx]) do
+				if not seen[e] then
+					seen[e]=true
+					if e.update then
+						e:update()
+					end
+				end
+			end
 		end
 	end
-	player:update()
 end
 
 function _draw()
 	cls()
 	camera(cx,cy)
 	map()
-	for i=1,3 do
-		for e in all(ents) do
-			if e.layer == i then
-				e:draw()
+	local seen={}
+	for layer=1,3 do
+		for y=0,15 do
+			for x=0,15 do
+				local mx = (cx/8)+x
+				local my = (cy/8)+y
+				for e in pairs(emap[my*128+mx]) do
+					if e.layer == layer then
+						if not seen[e] then
+							seen[e]=true
+							e:draw()
+						end
+					end
+				end
 			end
 		end
 	end
-	player:draw()
-end
-
-function movecamera()
-	cx=flr((player.x+4)/128)*128
-	cy=flr((player.y+4)/128)*128
-	ents=emap[cy*128+cx]
 end
 
 function makechest(s,x,y,tool)
-	add_to_emap({
+	emap_add({
 		k='chest',
+		slots={},
 		s=s,x=x,y=y,
 		tool=tool,
 		draw=drawsimple,
@@ -93,8 +112,9 @@ function makechest(s,x,y,tool)
 end
 
 function makeplayer(s,x,y)
-	player = {
+	player={
 		k='player',
+		slots={},
 		s=s,d=1,
 		x=x,y=y,
 		vx=0,vy=0,
@@ -102,11 +122,13 @@ function makeplayer(s,x,y)
 		layer=2,
 		update=updateplayer,
 	}
+	emap_add(player)
 end
 
 function makesolid(s,x,y,semi)
-	add_to_emap({
+	emap_add({
 		k='solid',
+		slots={},
 		s=s,x=x,y=y,
 		semi=semi,
 		draw=drawsimple,
@@ -114,8 +136,7 @@ function makesolid(s,x,y,semi)
 	})
 end
 
-function drawplayer()
-	local p = player
+function drawplayer(p)
 	spr(p.s, p.x, p.y, 1, 1, p.d<0)
 	-- rect(p.x, p.y, p.x+7,p.y+7,2)
 
@@ -134,7 +155,7 @@ end
 function updategoing(e)
 	e.t += 1
 	if e.t == 20 then
-		rement(e)
+		emap_rem(e)
 	end
 end
 
@@ -145,12 +166,12 @@ function drawgoing(e)
 end
 
 function updatebubble(e)
-	rement(e)
+	-- emap_rem(e)
 
 	e.x += cos(t()%2/2)*0.3
 	e.y = e.y-0.2
 
-	add_to_emap(e)
+	-- emap_add(e)
 end
 
 function startgoing(e)
@@ -160,9 +181,7 @@ function startgoing(e)
 	e.draw=drawgoing
 end
 
-function updateplayer()
-	local p = player
-	
+function updateplayer(p)
 	if btnp(❎) then
 		if p.chest then
 			startgoing(p.chest)
@@ -177,6 +196,7 @@ function updateplayer()
 	
 			p.bubble = {
 				k='bubble',
+				slots={},
 				x=p.x+16*p.d,
 				y=p.y,
 				s=bubblespr,
@@ -185,7 +205,7 @@ function updateplayer()
 				update=updatebubble,
 			}
 	
-			add_to_emap(p.bubble)
+			emap_add(p.bubble)
 		end
 	end
 
@@ -214,14 +234,12 @@ function updateplayer()
 	end
 
 	p.chest=nil
-	for o in all(ents) do
-		if o.k=='chest' and overlaps(p,o) then
-			p.chest=o
-			break
-		end
-	end
-
-	movecamera()
+	-- for o in pairs(ents) do
+	-- 	if o.k=='chest' and overlaps(p,o) then
+	-- 		p.chest=o
+	-- 		break
+	-- 	end
+	-- end
 end
 
 function overlaps(a,b)
@@ -232,34 +250,34 @@ function overlaps(a,b)
 end
 
 function trymove(e,d,v)
-	local s = sgn(v)
-	for i=s,v,s do
-		e[d] += s
+	-- local s = sgn(v)
+	-- for i=s,v,s do
+	-- 	e[d] += s
 
-		for o in all(ents) do
-			if overlaps(e,o) then
-				if o.k=='solid' then
-					if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
-						e[d] -= s
-						return false
-					end
-				elseif o.k=='bubble' then
-					if d=='x' then
-						o.x += s
-					elseif d=='y' then
-						if v<0 then
-							o.y += s
-						elseif v>0 then
-							e.y -= s
-							o.y += s
-							return false
-						end
-					end
-				end
-			end
-		end
-	end
-	return true
+	-- 	for o in pairs(ents) do
+	-- 		if overlaps(e,o) then
+	-- 			if o.k=='solid' then
+	-- 				if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
+	-- 					e[d] -= s
+	-- 					return false
+	-- 				end
+	-- 			elseif o.k=='bubble' then
+	-- 				if d=='x' then
+	-- 					o.x += s
+	-- 				elseif d=='y' then
+	-- 					if v<0 then
+	-- 						o.y += s
+	-- 					elseif v>0 then
+	-- 						e.y -= s
+	-- 						o.y += s
+	-- 						return false
+	-- 					end
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
+	-- return true
 end
 
 __gfx__
