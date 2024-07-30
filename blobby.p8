@@ -29,16 +29,20 @@ function _init()
 end
 
 function emap_add(ent)
-	emap_add_xy(ent,ent.x,ent.y)
-	emap_add_xy(ent,ent.x+7,ent.y)
-	emap_add_xy(ent,ent.x,ent.y+7)
-	emap_add_xy(ent,ent.x+7,ent.y+7)
+	emap_add_to(ent, emap_get(ent.x,ent.y))
+	emap_add_to(ent, emap_get(ent.x+7,ent.y))
+	emap_add_to(ent, emap_get(ent.x,ent.y+7))
+	emap_add_to(ent, emap_get(ent.x+7,ent.y+7))
 end
 
-function emap_add_xy(ent,x,y)
+function emap_get(x,y)
 	local i = flr(y/8)*128+flr(x/8)
-	emap[i][ent]=true
-	ent.slots[emap[i]]=true
+	return emap[i]
+end
+
+function emap_add_to(ent,ents)
+	ents[ent]=true
+	ent.slots[ents]=true
 end
 
 function emap_rem(e)
@@ -117,10 +121,12 @@ function makeplayer(s,x,y)
 		slots={},
 		s=s,d=1,
 		x=x,y=y,
-		vx=0,vy=0,
+		d=1,
+		vx=0,vy=maxgrav,
 		draw=drawplayer,
 		layer=2,
 		update=updateplayer,
+		collide=playercollide,
 	}
 	emap_add(player)
 end
@@ -181,6 +187,37 @@ function startgoing(e)
 	e.draw=drawgoing
 end
 
+maxgrav=3
+jumpvel=-7
+grav=0.25
+
+xvel=1
+maxvelx=3
+
+function playercollide(e, o, d, v)
+	if o.k=='solid' then
+		if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
+			e[d] -= s
+			emap_add(e)
+			return false
+		end
+	elseif o.k=='bubble' then
+		if d=='x' then
+			o.x += s
+		elseif d=='y' then
+			if v<0 then
+				o.y += s
+			elseif v>0 then
+				e.y -= s
+				o.y += s
+				-- emap_add(o)
+				return false
+			end
+		end
+	end
+	return true
+end
+
 function updateplayer(p)
 	if btnp(❎) then
 		if p.chest then
@@ -209,21 +246,22 @@ function updateplayer(p)
 		end
 	end
 
-	if     btn(➡️) then p.d= 1 p.vx=min(p.vx+1, 3)
-	elseif btn(⬅️) then p.d=-1 p.vx=max(p.vx-1,-3)
-	elseif p.vx >  1 then p.vx = p.vx - 1
-	elseif p.vx < -1 then p.vx = p.vx + 1
+	if     btn(➡️) then p.d= 1 p.vx=min(p.vx+xvel, maxvelx)
+	elseif btn(⬅️) then p.d=-1 p.vx=max(p.vx-xvel,-maxvelx)
+	elseif p.vx >  xvel then p.vx = p.vx - xvel
+	elseif p.vx < -xvel then p.vx = p.vx + xvel
 	elseif p.vx != 0 then p.vx=0
 	end
+
 	if p.vx then
 		if trymove(p, 'x', p.vx) then
 		end
 	end
 
 	if p.grounded and btn(🅾️) then
-		p.vy = -7
+		p.vy = jumpvel
 	else
-		p.vy = min(p.vy + 1, 9)
+		p.vy = min(p.vy + grav, maxgrav)
 	end
 
 	if trymove(p, 'y', p.vy) then
@@ -250,34 +288,33 @@ function overlaps(a,b)
 end
 
 function trymove(e,d,v)
-	-- local s = sgn(v)
-	-- for i=s,v,s do
-	-- 	e[d] += s
+	-- local slots = e.slots
 
-	-- 	for o in pairs(ents) do
-	-- 		if overlaps(e,o) then
-	-- 			if o.k=='solid' then
-	-- 				if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
-	-- 					e[d] -= s
-	-- 					return false
-	-- 				end
-	-- 			elseif o.k=='bubble' then
-	-- 				if d=='x' then
-	-- 					o.x += s
-	-- 				elseif d=='y' then
-	-- 					if v<0 then
-	-- 						o.y += s
-	-- 					elseif v>0 then
-	-- 						e.y -= s
-	-- 						o.y += s
-	-- 						return false
-	-- 					end
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
-	-- return true
+	-- emap_rem(e)
+
+	local s = sgn(v)
+	for i=s,v,s do
+		e[d] += s
+
+		-- local ents1 = emapi[flr(y/8)*128+flr(x/8)]
+
+		-- local ents1 = emap_get(e)
+
+		for emap in pairs(slots) do
+			for o in pairs(emap) do
+				if overlaps(e,o) then
+
+					if not playercollide(e,o,d,v) then
+						return false
+					end
+
+				end
+			end
+		end
+	end
+
+	-- emap_add(e)
+	return true
 end
 
 __gfx__
