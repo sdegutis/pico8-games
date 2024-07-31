@@ -172,13 +172,20 @@ function drawgoing(e)
 end
 
 function updatebubble(e)
-	trymove(e, 'x', cos(t()%2/2)*0.3)
+	e.standing=false
 	trymove(e, 'y', -0.2)
+
+	if not e.standing then
+		trymove(e, 'x', cos(t()%2/2)*0.3)
+	end
 end
 
 function bubblecollide(e, o, d, v)
 	if o.k=='solid' and not o.semi then
 		startgoing(e)
+		return 'stop'
+	elseif o.k=='player' and d=='y' and v<0 then
+		e.standing=true
 		return 'stop'
 	end
 	return 'pass'
@@ -212,9 +219,6 @@ function playercollide(e, o, d, v)
 				trymove(o, 'y', v)
 			elseif v>0 then
 				trymove(o, 'y', v)
-				-- e.y -= s
-				-- o.y += s
-				-- emap_add(o)
 				return 'stop'
 			end
 		end
