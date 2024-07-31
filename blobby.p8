@@ -187,9 +187,9 @@ function startgoing(e)
 	e.draw=drawgoing
 end
 
-maxgrav=4
-jumpvel=-5
-grav=0.75
+maxgrav=9
+jumpvel=-7
+grav=1
 
 xvel=1
 maxvelx=3
@@ -258,7 +258,7 @@ function updateplayer(p)
 		end
 	end
 
-	if btn(🅾️) then
+	if p.grounded and btn(🅾️) then
 		p.vy = jumpvel
 	else
 		p.vy = min(p.vy + grav, maxgrav)
