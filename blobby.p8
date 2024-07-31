@@ -163,7 +163,7 @@ function makeplayer(s,x,y)
 		k='player',
 		slots={},
 		keys=0,
-		wand=true,
+		wand=false,
 		s=s,d=1,
 		x=x,y=y,
 		d=1,
