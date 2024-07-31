@@ -176,7 +176,7 @@ function updatebubble(e)
 	trymove(e, 'y', -0.2)
 end
 
-function bubblecollide(e, o, d, v, s)
+function bubblecollide(e, o, d, v)
 	if o.k=='solid' then
 		startgoing(e)
 		return false
@@ -198,11 +198,9 @@ grav=1
 xvel=1
 maxvelx=3
 
-function playercollide(e, o, d, v, s)
+function playercollide(e, o, d, v)
 	if o.k=='solid' then
 		if not o.semi or d=='y' and v>0 and e.y==o.y-7 then
-			-- e[d] -= s
-			-- emap_add(e)
 			return false
 		end
 	elseif o.k=='bubble' then
@@ -296,23 +294,26 @@ end
 
 function trymove(e,d,v)
 	local s = sgn(v)
-	for i=s,v,s do
+	while v != 0 do
+		local m = s*min(1,abs(v))
+		v -= m
+
 		emap_rem(e)
-		e[d] += s
+		e[d] += m
 		emap_add(e)
 
 		local seen={}
 
 		for ents in pairs(e.slots) do
 			for o in pairs(ents) do
-				if not seen[o] then
+				if not seen[o] and e!=o then
 					seen[o]=true
 
 					if overlaps(e,o) then
 
-						if not e:collide(o,d,v,s) then
+						if not e:collide(o,d,v) then
 							emap_rem(e)
-							e[d] -= s
+							e[d] -= m
 							emap_add(e)
 							return false
 						end
