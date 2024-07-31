@@ -172,12 +172,16 @@ function drawgoing(e)
 end
 
 function updatebubble(e)
-	-- emap_rem(e)
+	trymove(e, 'x', cos(t()%2/2)*0.3)
+	trymove(e, 'y', -0.2)
+end
 
-	e.x += cos(t()%2/2)*0.3
-	e.y = e.y-0.2
-
-	-- emap_add(e)
+function bubblecollide(e, o, d, v, s)
+	if o.k=='solid' then
+		startgoing(e)
+		return false
+	end
+	return true
 end
 
 function startgoing(e)
@@ -202,18 +206,18 @@ function playercollide(e, o, d, v, s)
 			return false
 		end
 	elseif o.k=='bubble' then
-		if d=='x' then
-			o.x += s
-		elseif d=='y' then
-			if v<0 then
-				o.y += s
-			elseif v>0 then
-				e.y -= s
-				o.y += s
-				-- emap_add(o)
-				return false
-			end
-		end
+		-- if d=='x' then
+		-- 	o.x += s
+		-- elseif d=='y' then
+		-- 	if v<0 then
+		-- 		o.y += s
+		-- 	elseif v>0 then
+		-- 		-- e.y -= s
+		-- 		o.y += s
+		-- 		-- emap_add(o)
+		-- 		return false
+		-- 	end
+		-- end
 	end
 	return true
 end
@@ -240,6 +244,7 @@ function updateplayer(p)
 				draw=drawsimple,
 				layer=3,
 				update=updatebubble,
+				collide=bubblecollide,
 			}
 	
 			emap_add(p.bubble)
@@ -253,7 +258,7 @@ function updateplayer(p)
 	elseif p.vx != 0 then p.vx=0
 	end
 
-	if p.vx then
+	if p.vx != 0 then
 		if trymove(p, 'x', p.vx) then
 		end
 	end
