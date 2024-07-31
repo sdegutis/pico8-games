@@ -269,6 +269,12 @@ function updateplayer(p)
 
 	if p.grounded and btn(🅾️) then
 		p.vy = jumpvel
+
+		if p.bubble and p.bubble.standing then
+			startgoing(p.bubble)
+			p.bubble=nil
+		end
+		
 	else
 		p.vy = min(p.vy + grav, maxgrav)
 	end
