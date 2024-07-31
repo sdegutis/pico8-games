@@ -163,6 +163,7 @@ function makeplayer(s,x,y)
 		k='player',
 		slots={},
 		keys=0,
+		wand=true,
 		s=s,d=1,
 		x=x,y=y,
 		d=1,
@@ -233,7 +234,10 @@ function bubblecollide(e, o, d, v)
 	if o.k=='solid' and not o.semi then
 		startgoing(e)
 		return 'stop'
-	elseif o.k=='player' and d=='y' and v<0 then
+	elseif o.k=='player' and d=='y' and v<0
+		and e.y-v-o.y>=7
+	then
+		-- stop("\#1\fa"..e.y..','..o.y..','..v..','..e.y-v)
 		e.standing=true
 		return 'stop'
 	end
