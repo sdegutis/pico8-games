@@ -234,12 +234,15 @@ function bubblecollide(e, o, d, v)
 	if o.k=='solid' and not o.semi then
 		startgoing(e)
 		return 'stop'
-	elseif o.k=='player' and d=='y' and v<0
-		and e.y-v-o.y>=7
-	then
+	elseif o.k=='player' then
+		if d=='y' and v<0 and e.y-v-o.y>=7 then
 		-- stop("\#1\fa"..e.y..','..o.y..','..v..','..e.y-v)
-		e.standing=true
-		return 'stop'
+			e.standing=true
+			return 'stop'
+		elseif d=='x' and not o.pushingbubble then
+			startgoing(e)
+			return 'stop'
+		end
 	end
 	return 'pass'
 end
@@ -287,6 +290,7 @@ function playercollide(e, o, d, v)
 		startgoing(o)
 	elseif o.k=='bubble' then
 		if d=='x' then
+			e.pushingbubble=true
 			trymove(o, 'x', v)
 		elseif d=='y' then
 			if v<0 then
@@ -301,6 +305,8 @@ function playercollide(e, o, d, v)
 end
 
 function updateplayer(p)
+	p.pushingbubble=false
+
 	if btnp(❎) then
 		if p.chest then
 			startgoing(p.chest)
