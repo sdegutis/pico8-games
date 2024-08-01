@@ -25,6 +25,7 @@ function _init()
 			elseif fget(s)==1<<5      then mset(x,y,0) makedoor(s,x*8,y*8)
 			elseif fget(s)==1<<6      then mset(x,y,0) makeprize(s,x*8,y*8)
 			elseif fget(s)==1<<7      then mset(x,y,0) makechest(x*8,y*8,'wand')   bubblespr=s
+			elseif fget(s)==1<<7|1<<4 then mset(x,y,0) makechest(x*8,y*8,'pgun')   pgunspr=s
 			elseif fget(s)==1<<7|1<<5 then mset(x,y,0) makechest(x*8,y*8,'wand2')  bubblespr=s
 			elseif fget(s)==1<<7|1<<6 then mset(x,y,0) makechest(x*8,y*8,'cannon') cannonspr=s
 			end
@@ -206,6 +207,10 @@ function drawplayer(p)
 		line(p.x+3,p.y-7,p.x+5,p.y-5,6)
 		line(p.x+5,p.y-7,p.x+3,p.y-5,6)
 	end
+
+	if p.haspgun then
+		spr(pgunspr, p.x+8*p.d, p.y, 1, 1, p.d<0)
+	end
 end
 
 function drawsimple(e)
@@ -343,12 +348,16 @@ function updateplayer(p)
 		if p.chest then
 			startgoing(p.chest)
 			if p.chest.tool == 'wand' then
+				p.haspgun=false
 				p.wand=true
 			elseif p.chest.tool == 'wand2' then
+				p.haspgun=false
 				p.wand=true
 				p.wand2=true
 			elseif p.chest.tool == 'cannon' then
-				p.hascannon=true
+				p.haspgun=false
+			elseif p.chest.tool == 'pgun' then
+				p.haspgun=true
 			end
 			p.chest=nil
 		elseif p.hascannon then
