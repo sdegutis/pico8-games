@@ -20,13 +20,13 @@ function _init()
 	for y=0,63 do
 		for x=0,127 do
 			local s = mget(x,y)
-			if     fget(s, 0) then mset(x,y,0) makesolid(s,x*8,y*8)
-			elseif fget(s, 1) then mset(x,y,0) makesolid(s,x*8,y*8,true)
-			elseif fget(s, 3) then mset(x,y,0) makeplayer(s,x*8,y*8)
-			elseif fget(s, 4) then mset(x,y,0) makekey(s,x*8,y*8)
-			elseif fget(s, 5) then mset(x,y,0) makedoor(s,x*8,y*8)
-			elseif fget(s, 6) then mset(x,y,0) makeprize(s,x*8,y*8)
-			elseif fget(s, 7) then mset(x,y,0) makechest(chestspr,x*8,y*8,'wand')
+			if     fget(s)==1<<0 then mset(x,y,0) makesolid(s,x*8,y*8)
+			elseif fget(s)==1<<1 then mset(x,y,0) makesolid(s,x*8,y*8,true)
+			elseif fget(s)==1<<3 then mset(x,y,0) makeplayer(s,x*8,y*8)
+			elseif fget(s)==1<<4 then mset(x,y,0) makekey(s,x*8,y*8)
+			elseif fget(s)==1<<5 then mset(x,y,0) makedoor(s,x*8,y*8)
+			elseif fget(s)==1<<6 then mset(x,y,0) makeprize(s,x*8,y*8)
+			elseif fget(s)==1<<7 then mset(x,y,0) makechest(chestspr,x*8,y*8,'wand')
 			end
 		end
 	end
@@ -66,7 +66,7 @@ end
 
 function findsprite(f)
 	for i=0,255 do
-		if fget(i,f) then
+		if fget(i)==1<<f then
 			return i
 		end
 	end
