@@ -14,7 +14,6 @@ function _init()
 	updatable={}
 
 	chestspr=findsprite(2)
-	keyspr=findsprite(4)
 
 	for y=0,63 do
 		for x=0,127 do
@@ -22,7 +21,7 @@ function _init()
 			if     fget(s)==1<<0      then mset(x,y,0) makesolid(s,x*8,y*8)
 			elseif fget(s)==1<<1      then mset(x,y,0) makesolid(s,x*8,y*8,true)
 			elseif fget(s)==1<<3      then mset(x,y,0) makeplayer(s,x*8,y*8)
-			elseif fget(s)==1<<4      then mset(x,y,0) makekey(s,x*8,y*8)
+			elseif fget(s)==1<<4      then mset(x,y,0) makekey(s,x*8,y*8) keyspr=s
 			elseif fget(s)==1<<5      then mset(x,y,0) makedoor(s,x*8,y*8)
 			elseif fget(s)==1<<6      then mset(x,y,0) makeprize(s,x*8,y*8)
 			elseif fget(s)==1<<7      then mset(x,y,0) makechest(x*8,y*8,'wand')   bubblespr=s
