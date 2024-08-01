@@ -238,6 +238,9 @@ function bubblecollide(e, o, d, v)
 	if o.k=='solid' and not o.semi then
 		startgoing(e)
 		return 'stop'
+	elseif o.k=='bubble' then
+		e.x -= sgn(o.x-e.x)
+		-- e.y -= sgn(o.y-e.y)
 	elseif o.k=='player' then
 		if d=='y' and v<0 and e.y-v-o.y>=7 then
 		-- stop("\#1\fa"..e.y..','..o.y..','..v..','..e.y-v)
