@@ -94,15 +94,20 @@ function findsprite(f)
 end
 
 function _update()
-	cx=flr((player.x+4)/128)*128
-	cy=flr((player.y+4)/128)*128
-
 	for e in pairs(updatable) do
 		e:update()
 	end
 end
 
 function _draw()
+	local cx=flr((player.x+4)/128)*128
+	local cy=flr((player.y+4)/128)*128
+
+	if cam==2 then
+		cx=mid(0,128*8-128, flr(player.x)+4-64)
+		cy=mid(0, 64*8-128, flr(player.y)+4-64)
+	end
+
 	cls()
 	camera()
 	for y=0,15 do
@@ -111,13 +116,17 @@ function _draw()
 		end
 	end
 	camera(cx,cy)
+
+	cx=(cx/8)*8
+	cy=(cy/8)*8
+
 	map()
 	local seen={}
-	for layer=1,3 do
-		for y=0,15 do
-			for x=0,15 do
-				local mx = (cx/8)+x
-				local my = (cy/8)+y
+	for layer=1,4 do
+		for y=0,16 do
+			for x=0,16 do
+				local mx = flr(cx/8)+x
+				local my = flr(cy/8)+y
 				for e in pairs(emap[my*128+mx]) do
 					if e.layer == layer then
 						if not seen[e] then
@@ -379,7 +388,7 @@ function playercollide(e, o, d, v)
 end
 
 function drawportal(e)
-	circfill(e.x+3.5, e.y+3.5, 3.5, e.which==0 and 1 or 2)
+	circfill(e.x+3.5, e.y+3.5, 3.5, e.which==0 and 8 or 12)
 	for i=0,2,0.1 do
 		local x=cos((t()+i)/2)*3.5
 		local y=sin((t()+i)/2)*3.5
@@ -429,7 +438,7 @@ function updateplayer(p)
 						slots={},
 						x=x,y=p.y,
 						draw=drawportal,
-						layer=2,
+						layer=4,
 						which=0,
 					}
 					p.lastp=p.p1
@@ -441,7 +450,7 @@ function updateplayer(p)
 						slots={},
 						x=x,y=p.y,
 						draw=drawportal,
-						layer=2,
+						layer=4,
 						which=1,
 					}
 					p.lastp=p.p2
