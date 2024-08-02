@@ -297,6 +297,16 @@ function playercollide(e, o, d, v)
 		if d=='y' and v>0 and e.y==o.y-7 then
 			return 'stop'
 		end
+	elseif o.k=='portal' then
+		if d=='y' then return 'stop' end
+
+		local otherp = e.p1
+		if o==e.p1 then otherp=e.p2 end
+
+		if e.x==o.x then
+			e.x = otherp.x
+			e.y = otherp.y-8
+		end
 	elseif o.k=='cannon' then
 		if d=='x' or v<0 then
 			return 'stop'
