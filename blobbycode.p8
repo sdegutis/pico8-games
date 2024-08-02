@@ -341,6 +341,15 @@ function playercollide(e, o, d, v)
 	return 'pass'
 end
 
+function drawportal(e)
+	rectfill(e.x, e.y, e.x+7, e.y+7, e.which==0 and 1 or 2)
+	local x = e.x + 4
+	local y = e.y + 4
+	x+=cos(t()/2)*3
+	y+=sin(t()/2)*3
+	pset(x,y,7)
+end
+
 function updateplayer(p)
 	p.pushingbubble=false
 
@@ -360,6 +369,34 @@ function updateplayer(p)
 				p.haspgun=true
 			end
 			p.chest=nil
+		elseif p.haspgun then
+			if not p.lastp or p.lastp == p.p2 then
+				if p.p1 then emap_rem(p.p1) end
+				p.p1 = {
+					k='portal',
+					slots={},
+					x=p.x+8*p.d,
+					y=p.y,
+					draw=drawportal,
+					layer=2,
+					which=0,
+				}
+				p.lastp=p.p1
+				emap_add(p.p1)
+			else
+				if p.p2 then emap_rem(p.p2) end
+				p.p2 = {
+					k='portal',
+					slots={},
+					x=p.x+8*p.d,
+					y=p.y,
+					draw=drawportal,
+					layer=2,
+					which=1,
+				}
+				p.lastp=p.p2
+				emap_add(p.p2)
+			end
 		elseif p.hascannon then
 			if p.cannon then startgoing(p.cannon) end
 
