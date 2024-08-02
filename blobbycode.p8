@@ -44,6 +44,19 @@ function emap_add(ent)
 	emap_add_to(ent, emap_get(ent.x+7,ent.y+7))
 end
 
+function emap_getall(x,y)
+	local ents = {}
+	for xx=0,1 do
+		for yy=0,1 do
+			local found = emap_get(x+7*xx,y+7*yy)
+			for e in pairs(found) do
+				ents[e]=true
+			end
+		end
+	end
+	return ents
+end
+
 function emap_get(x,y)
 	local i = flr(y/8)*128+flr(x/8)
 	return emap[i]
@@ -303,9 +316,11 @@ function playercollide(e, o, d, v)
 		local otherp = e.p1
 		if o==e.p1 then otherp=e.p2 end
 
-		if e.x==o.x then
-			e.x = otherp.x
-			e.y = otherp.y-8
+		if otherp then
+			if e.x==o.x then
+				e.x = otherp.x
+				e.y = otherp.y-8
+			end
 		end
 	elseif o.k=='cannon' then
 		if d=='x' or v<0 then
@@ -380,32 +395,37 @@ function updateplayer(p)
 			end
 			p.chest=nil
 		elseif p.haspgun then
-			if not p.lastp or p.lastp == p.p2 then
-				if p.p1 then emap_rem(p.p1) end
-				p.p1 = {
-					k='portal',
-					slots={},
-					x=p.x+8*p.d,
-					y=p.y,
-					draw=drawportal,
-					layer=2,
-					which=0,
-				}
-				p.lastp=p.p1
-				emap_add(p.p1)
-			else
-				if p.p2 then emap_rem(p.p2) end
-				p.p2 = {
-					k='portal',
-					slots={},
-					x=p.x+8*p.d,
-					y=p.y,
-					draw=drawportal,
-					layer=2,
-					which=1,
-				}
-				p.lastp=p.p2
-				emap_add(p.p2)
+			local x = p.x+8*p.d
+
+			local maybebad = emap_getall(x,p.y)
+			maybebad[p]=nil
+
+			if not next(maybebad) then
+				if not p.lastp or p.lastp == p.p2 then
+					if p.p1 then emap_rem(p.p1) end
+					p.p1 = {
+						k='portal',
+						slots={},
+						x=x,y=p.y,
+						draw=drawportal,
+						layer=2,
+						which=0,
+					}
+					p.lastp=p.p1
+					emap_add(p.p1)
+				else
+					if p.p2 then emap_rem(p.p2) end
+					p.p2 = {
+						k='portal',
+						slots={},
+						x=x,y=p.y,
+						draw=drawportal,
+						layer=2,
+						which=1,
+					}
+					p.lastp=p.p2
+					emap_add(p.p2)
+				end
 			end
 		elseif p.hascannon then
 			if p.cannon then startgoing(p.cannon) end
