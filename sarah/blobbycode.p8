@@ -14,7 +14,6 @@ function _init()
 	updatable={}
 
 	chestspr=findsprite(2)
-	keyspr=findsprite(4)
 
 	for y=0,63 do
 		for x=0,127 do
@@ -22,15 +21,23 @@ function _init()
 			if     fget(s)==1<<0      then mset(x,y,0) makesolid(s,x*8,y*8)
 			elseif fget(s)==1<<1      then mset(x,y,0) makesolid(s,x*8,y*8,true)
 			elseif fget(s)==1<<3      then mset(x,y,0) makeplayer(s,x*8,y*8)
-			elseif fget(s)==1<<4      then mset(x,y,0) makekey(s,x*8,y*8)
+			elseif fget(s)==1<<4      then mset(x,y,0) makekey(s,x*8,y*8) keyspr=s
 			elseif fget(s)==1<<5      then mset(x,y,0) makedoor(s,x*8,y*8)
 			elseif fget(s)==1<<6      then mset(x,y,0) makeprize(s,x*8,y*8)
 			elseif fget(s)==1<<7      then mset(x,y,0) makechest(x*8,y*8,'wand')   bubblespr=s
+			elseif fget(s)==1<<7|1<<4 then mset(x,y,0) makechest(x*8,y*8,'pgun')   pgunspr=s
 			elseif fget(s)==1<<7|1<<5 then mset(x,y,0) makechest(x*8,y*8,'wand2')  bubblespr=s
 			elseif fget(s)==1<<7|1<<6 then mset(x,y,0) makechest(x*8,y*8,'cannon') cannonspr=s
 			end
 		end
 	end
+
+	toolsprs={
+		wand=bubblespr,
+		wand2=bubblespr,
+		cannon=cannonspr,
+		pgun=pgunspr,
+	}
 end
 
 function emap_add(ent)
@@ -42,6 +49,19 @@ function emap_add(ent)
 	emap_add_to(ent, emap_get(ent.x+7,ent.y))
 	emap_add_to(ent, emap_get(ent.x,ent.y+7))
 	emap_add_to(ent, emap_get(ent.x+7,ent.y+7))
+end
+
+function emap_getall(x,y)
+	local ents = {}
+	for xx=0,1 do
+		for yy=0,1 do
+			local found = emap_get(x+7*xx,y+7*yy)
+			for e in pairs(found) do
+				ents[e]=true
+			end
+		end
+	end
+	return ents
 end
 
 function emap_get(x,y)
@@ -167,6 +187,7 @@ function makeplayer(s,x,y)
 	player={
 		k='player',
 		slots={},
+		tools={},
 		keys=0,
 		wand=false,
 		s=s,d=1,
@@ -201,11 +222,19 @@ function drawplayer(p)
 	spr(p.s, p.x, p.y, 1, 1, p.d<0)
 	-- rect(p.x, p.y, p.x+7,p.y+7,2)
 
-	if p.chest then
+	if p.tooli then
+		p.tooli += 1
+		if p.tooli==15 then p.tooli=nil end
+		spr(toolsprs[p.tool], p.x, p.y-10)
+	elseif p.chest then
 		circfill(p.x+4, p.y-6, 4, 0)
 		circ    (p.x+4, p.y-6, 4, 6)
 		line(p.x+3,p.y-7,p.x+5,p.y-5,6)
 		line(p.x+5,p.y-7,p.x+3,p.y-5,6)
+	end
+
+	if p.tool=='pgun' then
+		spr(pgunspr, p.x+8*p.d, p.y, 1, 1, p.d<0)
 	end
 end
 
@@ -239,6 +268,9 @@ function bubblecollide(e, o, d, v)
 	if o.k=='solid' and not o.semi then
 		startgoing(e)
 		return 'stop'
+	elseif o.k=='bubble' then
+		e.x -= sgn(o.x-e.x)
+		-- e.y -= sgn(o.y-e.y)
 	elseif o.k=='player' then
 		if d=='y' and v<0 and e.y-v-o.y>=7 then
 		-- stop("\#1\fa"..e.y..','..o.y..','..v..','..e.y-v)
@@ -290,6 +322,18 @@ function playercollide(e, o, d, v)
 		if d=='y' and v>0 and e.y==o.y-7 then
 			return 'stop'
 		end
+	elseif o.k=='portal' then
+		if d=='y' then return 'stop' end
+
+		local otherp = e.p1
+		if o==e.p1 then otherp=e.p2 end
+
+		if otherp then
+			if e.x==o.x then
+				e.x = otherp.x
+				e.y = otherp.y-8
+			end
+		end
 	elseif o.k=='cannon' then
 		if d=='x' or v<0 then
 			return 'stop'
@@ -334,22 +378,77 @@ function playercollide(e, o, d, v)
 	return 'pass'
 end
 
+function drawportal(e)
+	circfill(e.x+3.5, e.y+3.5, 3.5, e.which==0 and 1 or 2)
+	for i=0,2,0.1 do
+		local x=cos((t()+i)/2)*3.5
+		local y=sin((t()+i)/2)*3.5
+		pset(e.x+4+x,e.y+4+y,i*8)
+	end
+end
+
+function indexof(a,e)
+	for i=1,#a do
+		if e==a[i] then
+			return i
+		end
+	end
+end
+
 function updateplayer(p)
 	p.pushingbubble=false
 
-	if btnp(❎) then
+	if btnp(⬆️) then
+		local i = indexof(p.tools, p.tool)
+		if i then
+			p.tooli=0
+			if not p.tools[i+1] then i=0 end
+			p.tool = p.tools[i+1]
+		end
+	elseif btnp(❎) then
 		if p.chest then
+			p.tool=p.chest.tool
+
 			startgoing(p.chest)
-			if p.chest.tool == 'wand' then
-				p.wand=true
-			elseif p.chest.tool == 'wand2' then
-				p.wand=true
-				p.wand2=true
-			elseif p.chest.tool == 'cannon' then
-				p.hascannon=true
-			end
 			p.chest=nil
-		elseif p.hascannon then
+
+			if not indexof(p.tools, p.tool) then
+				add(p.tools, p.tool)
+			end
+		elseif p.tool=='pgun' then
+			local x = p.x+8*p.d
+
+			local maybebad = emap_getall(x,p.y)
+			maybebad[p]=nil
+
+			if not next(maybebad) then
+				if not p.lastp or p.lastp == p.p2 then
+					if p.p1 then emap_rem(p.p1) end
+					p.p1 = {
+						k='portal',
+						slots={},
+						x=x,y=p.y,
+						draw=drawportal,
+						layer=2,
+						which=0,
+					}
+					p.lastp=p.p1
+					emap_add(p.p1)
+				else
+					if p.p2 then emap_rem(p.p2) end
+					p.p2 = {
+						k='portal',
+						slots={},
+						x=x,y=p.y,
+						draw=drawportal,
+						layer=2,
+						which=1,
+					}
+					p.lastp=p.p2
+					emap_add(p.p2)
+				end
+			end
+		elseif p.tool=='cannon' then
 			if p.cannon then startgoing(p.cannon) end
 
 			p.cannon = {
@@ -366,8 +465,8 @@ function updateplayer(p)
 			}
 
 			emap_add(p.cannon)
-		elseif p.wand then
-			if p.bubble and not p.wand2 then startgoing(p.bubble) end
+		elseif p.tool=='wand' or p.tool=='wand2' then
+			if p.bubble and p.tool!='wand2' then startgoing(p.bubble) end
 	
 			p.bubble = {
 				k='bubble',
