@@ -407,9 +407,7 @@ end
 function updateplayer(p)
 	p.pushingbubble=false
 
-	if btnp(⬇️) then
-		if cam==1 then cam=2 else cam=1 end
-	elseif btnp(⬆️) then
+	if btnp(⬆️) then
 		local i = indexof(p.tools, p.tool)
 		if i then
 			p.tooli=0
