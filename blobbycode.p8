@@ -113,7 +113,7 @@ function _draw()
 	camera(cx,cy)
 	map()
 	local seen={}
-	for layer=1,3 do
+	for layer=1,4 do
 		for y=0,15 do
 			for x=0,15 do
 				local mx = (cx/8)+x
@@ -379,7 +379,7 @@ function playercollide(e, o, d, v)
 end
 
 function drawportal(e)
-	circfill(e.x+3.5, e.y+3.5, 3.5, e.which==0 and 1 or 2)
+	circfill(e.x+3.5, e.y+3.5, 3.5, e.which==0 and 8 or 12)
 	for i=0,2,0.1 do
 		local x=cos((t()+i)/2)*3.5
 		local y=sin((t()+i)/2)*3.5
@@ -429,7 +429,7 @@ function updateplayer(p)
 						slots={},
 						x=x,y=p.y,
 						draw=drawportal,
-						layer=2,
+						layer=4,
 						which=0,
 					}
 					p.lastp=p.p1
@@ -441,7 +441,7 @@ function updateplayer(p)
 						slots={},
 						x=x,y=p.y,
 						draw=drawportal,
-						layer=2,
+						layer=4,
 						which=1,
 					}
 					p.lastp=p.p2
