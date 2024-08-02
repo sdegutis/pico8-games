@@ -367,12 +367,12 @@ function playercollide(e, o, d, v)
 end
 
 function drawportal(e)
-	rectfill(e.x, e.y, e.x+7, e.y+7, e.which==0 and 1 or 2)
-	local x = e.x + 4
-	local y = e.y + 4
-	x+=cos(t()/2)*3
-	y+=sin(t()/2)*3
-	pset(x,y,7)
+	circfill(e.x+3.5, e.y+3.5, 3.5, e.which==0 and 1 or 2)
+	for i=0,2,0.1 do
+		local x=cos((t()+i)/2)*3.5
+		local y=sin((t()+i)/2)*3.5
+		pset(e.x+4+x,e.y+4+y,i*8)
+	end
 end
 
 function updateplayer(p)
