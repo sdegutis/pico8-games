@@ -180,6 +180,7 @@ function makeplayer(s,x,y)
 	player={
 		k='player',
 		slots={},
+		tools={},
 		keys=0,
 		wand=false,
 		s=s,d=1,
@@ -221,7 +222,7 @@ function drawplayer(p)
 		line(p.x+5,p.y-7,p.x+3,p.y-5,6)
 	end
 
-	if p.haspgun then
+	if p.tool=='pgun' then
 		spr(pgunspr, p.x+8*p.d, p.y, 1, 1, p.d<0)
 	end
 end
@@ -380,21 +381,22 @@ function updateplayer(p)
 
 	if btnp(❎) then
 		if p.chest then
+			p.tool=p.chest.tool
+
 			startgoing(p.chest)
-			if p.chest.tool == 'wand' then
-				p.haspgun=false
-				p.wand=true
-			elseif p.chest.tool == 'wand2' then
-				p.haspgun=false
-				p.wand=true
-				p.wand2=true
-			elseif p.chest.tool == 'cannon' then
-				p.haspgun=false
-			elseif p.chest.tool == 'pgun' then
-				p.haspgun=true
-			end
 			p.chest=nil
-		elseif p.haspgun then
+
+			local found=false
+			for t in all(p.tools) do
+				if t==p.tool then
+					found=true
+					break
+				end
+			end
+			if found then
+				add(p.tools, p.tool)
+			end
+		elseif p.tool=='pgun' then
 			local x = p.x+8*p.d
 
 			local maybebad = emap_getall(x,p.y)
@@ -427,7 +429,7 @@ function updateplayer(p)
 					emap_add(p.p2)
 				end
 			end
-		elseif p.hascannon then
+		elseif p.tool=='cannon' then
 			if p.cannon then startgoing(p.cannon) end
 
 			p.cannon = {
@@ -444,8 +446,8 @@ function updateplayer(p)
 			}
 
 			emap_add(p.cannon)
-		elseif p.wand then
-			if p.bubble and not p.wand2 then startgoing(p.bubble) end
+		elseif p.tool=='wand' or p.tool=='wand2' then
+			if p.bubble and p.tool!='wand2' then startgoing(p.bubble) end
 	
 			p.bubble = {
 				k='bubble',
