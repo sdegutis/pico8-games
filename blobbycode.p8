@@ -31,6 +31,13 @@ function _init()
 			end
 		end
 	end
+
+	toolsprs={
+		wand=bubblespr,
+		wand2=bubblespr,
+		cannon=cannonspr,
+		pgun=pgunspr,
+	}
 end
 
 function emap_add(ent)
@@ -215,7 +222,11 @@ function drawplayer(p)
 	spr(p.s, p.x, p.y, 1, 1, p.d<0)
 	-- rect(p.x, p.y, p.x+7,p.y+7,2)
 
-	if p.chest then
+	if p.tooli then
+		p.tooli += 1
+		if p.tooli==15 then p.tooli=nil end
+		spr(toolsprs[p.tool], p.x, p.y-10)
+	elseif p.chest then
 		circfill(p.x+4, p.y-6, 4, 0)
 		circ    (p.x+4, p.y-6, 4, 6)
 		line(p.x+3,p.y-7,p.x+5,p.y-5,6)
@@ -388,15 +399,12 @@ function updateplayer(p)
 	p.pushingbubble=false
 
 	if btnp(⬆️) then
-
-		p.tooli=0
-
 		local i = indexof(p.tools, p.tool)
 		if i then
+			p.tooli=0
 			if not p.tools[i+1] then i=0 end
 			p.tool = p.tools[i+1]
 		end
-
 	elseif btnp(❎) then
 		if p.chest then
 			p.tool=p.chest.tool
