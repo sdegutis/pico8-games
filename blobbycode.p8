@@ -376,24 +376,35 @@ function drawportal(e)
 	end
 end
 
+function indexof(a,e)
+	for i=1,#a do
+		if e==a[i] then
+			return i
+		end
+	end
+end
+
 function updateplayer(p)
 	p.pushingbubble=false
 
-	if btnp(❎) then
+	if btnp(⬆️) then
+
+		p.tooli=0
+
+		local i = indexof(p.tools, p.tool)
+		if i then
+			if not p.tools[i+1] then i=0 end
+			p.tool = p.tools[i+1]
+		end
+
+	elseif btnp(❎) then
 		if p.chest then
 			p.tool=p.chest.tool
 
 			startgoing(p.chest)
 			p.chest=nil
 
-			local found=false
-			for t in all(p.tools) do
-				if t==p.tool then
-					found=true
-					break
-				end
-			end
-			if found then
+			if not indexof(p.tools, p.tool) then
 				add(p.tools, p.tool)
 			end
 		elseif p.tool=='pgun' then
