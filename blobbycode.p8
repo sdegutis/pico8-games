@@ -400,7 +400,7 @@ function updatefrog(e)
 		end
 	end
 	if trymove(e, 'x', e.dir) then
-		if player.onduck then
+		if player.onfrog then
 			trymove(player, 'x', e.dir)
 		end
 	else
@@ -416,7 +416,7 @@ function collidefrog(e, o, d, v)
 			end
 		end
 	end
-	-- return collideduck(e,o,d,v)
+	return collideduck(e,o,d,v)
 end
 
 function playercollide(e, o, d, v)
