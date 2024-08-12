@@ -25,6 +25,7 @@ function _init()
 			elseif fget(s)==1<<5      then mset(x,y,0) makedoor(s,x*8,y*8)
 			elseif fget(s)==1<<6      then mset(x,y,0) makeprize(s,x*8,y*8)
 			elseif fget(s)==1<<7      then mset(x,y,0) makechest(x*8,y*8,'wand')   bubblespr=s
+			elseif fget(s)==1<<7|1<<2 then mset(x,y,0) makefrog(s,x*8,y*8)
 			elseif fget(s)==1<<7|1<<3 then mset(x,y,0) makeduck(s,x*8,y*8)
 			elseif fget(s)==1<<7|1<<4 then mset(x,y,0) makechest(x*8,y*8,'pgun')   pgunspr=s
 			elseif fget(s)==1<<7|1<<5 then mset(x,y,0) makechest(x*8,y*8,'wand2')  bubblespr=s
@@ -168,11 +169,23 @@ function makeduck(s,x,y)
 		slots={},
 		s=s,x=x,y=y,
 		vy=0,dir=1,
-		tool=tool,
 		draw=drawduck,
 		update=updateduck,
 		layer=2,
 		collide=collideduck,
+	})
+end
+
+function makefrog(s,x,y)
+	emap_add({
+		k='frog',
+		slots={},
+		s=s,x=x,y=y,
+		vy=0,
+		draw=drawsimple,
+		update=updatefrog,
+		layer=2,
+		collide=collidefrog,
 	})
 end
 
@@ -375,12 +388,40 @@ function collideduck(e, o, d, v)
 	return 'stop'
 end
 
+function updatefrog(e)
+	e.vy = min(e.vy + grav, maxgrav)
+	if trymove(e, 'y', e.vy) then
+	else
+		if e.vy > 0 then
+			e.vy = -7
+		else
+			e.vy = 0
+		end
+	end
+end
+
+function collidefrog(e, o, d, v)
+	if o.k=='player' then
+		if d=='y' and v<0 and player.onfrog then
+			if trymove(player, d, v) then
+				return 'pass'
+			end
+		end
+	end
+	return 'stop'
+end
+
 function playercollide(e, o, d, v)
 	if o.k=='solid' then
 		if not o.semi then return 'stop' end
 		if d=='y' and v>0 and e.y==o.y-7 then
 			return 'stop'
 		end
+	elseif o.k=='frog' then
+		if d=='y' and v>0 then
+			e.onfrog=true
+		end
+		return 'stop'
 	elseif o.k=='duck' then
 		if d=='y' and v>0 then
 			e.onduck=true
@@ -462,6 +503,7 @@ end
 function updateplayer(p)
 	p.pushingbubble=false
 	p.onduck=false
+	p.onfrog=false
 
 	if btnp(⬆️) then
 		local i = indexof(p.tools, p.tool)
