@@ -345,9 +345,14 @@ function updatecannon(p)
 end
 
 function updateduck(e)
-	e.vy = min(e.vy + grav, maxgrav)
-	if not trymove(e, 'y', e.vy) then
-		e.vy = 0
+	if e.bounce then
+		e.bounce=false
+		e.vy = -14
+	else
+		e.vy = min(e.vy + grav, maxgrav)
+		if not trymove(e, 'y', e.vy) then
+			e.vy = 0
+		end
 	end
 	if trymove(e, 'x', e.dir) then
 		if player.onduck then
@@ -359,6 +364,14 @@ function updateduck(e)
 end
 
 function collideduck(e, o, d, v)
+	if o.k=='cannon' then
+		if d=='x' or v<0 then
+			return 'stop'
+		else
+			e.bounce=true
+			return 'stop'
+		end
+	end
 	return 'stop'
 end
 
@@ -501,22 +514,31 @@ function updateplayer(p)
 				end
 			end
 		elseif p.tool=='cannon' then
-			if p.cannon then startgoing(p.cannon) end
+			local x = p.x+8*p.d
+			local maybebad = emap_getall(x,p.y)
+			maybebad[p]=nil
+			if p.cannon then
+				maybebad[p.cannon]=nil
+			end
 
-			p.cannon = {
-				k='cannon',
-				slots={},
-				x=p.x+16*p.d,
-				y=p.y,
-				vy=0,
-				s=cannonspr,
-				draw=drawsimple,
-				layer=2,
-				update=updatecannon,
-				collide=cannoncollide,
-			}
-
-			emap_add(p.cannon)
+			if not next(maybebad) then
+				if p.cannon then startgoing(p.cannon) end
+	
+				p.cannon = {
+					k='cannon',
+					slots={},
+					x=x,
+					y=p.y,
+					vy=0,
+					s=cannonspr,
+					draw=drawsimple,
+					layer=2,
+					update=updatecannon,
+					collide=cannoncollide,
+				}
+	
+				emap_add(p.cannon)
+			end
 		elseif p.tool=='wand' or p.tool=='wand2' then
 			if p.bubble and p.tool!='wand2' then startgoing(p.bubble) end
 	
