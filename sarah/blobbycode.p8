@@ -25,6 +25,8 @@ function _init()
 			elseif fget(s)==1<<5      then mset(x,y,0) makedoor(s,x*8,y*8)
 			elseif fget(s)==1<<6      then mset(x,y,0) makeprize(s,x*8,y*8)
 			elseif fget(s)==1<<7      then mset(x,y,0) makechest(x*8,y*8,'wand')   bubblespr=s
+			elseif fget(s)==1<<7|1<<2 then mset(x,y,0) makefrog(s,x*8,y*8)
+			elseif fget(s)==1<<7|1<<3 then mset(x,y,0) makeduck(s,x*8,y*8)
 			elseif fget(s)==1<<7|1<<4 then mset(x,y,0) makechest(x*8,y*8,'pgun')   pgunspr=s
 			elseif fget(s)==1<<7|1<<5 then mset(x,y,0) makechest(x*8,y*8,'wand2')  bubblespr=s
 			elseif fget(s)==1<<7|1<<6 then mset(x,y,0) makechest(x*8,y*8,'cannon') cannonspr=s
@@ -161,6 +163,33 @@ function makechest(x,y,tool)
 	})
 end
 
+function makeduck(s,x,y)
+	emap_add({
+		k='duck',
+		slots={},
+		s=s,x=x,y=y,
+		vy=0,dir=1,
+		draw=drawduck,
+		update=updateduck,
+		layer=2,
+		collide=collideduck,
+	})
+end
+
+function makefrog(s,x,y)
+	emap_add({
+		k='frog',
+		slots={},
+		s=s,x=x,y=y,
+		vy=0,
+		vy=0,dir=1,
+		draw=drawduck,
+		update=updatefrog,
+		layer=2,
+		collide=collidefrog,
+	})
+end
+
 function makekey(s,x,y)
 	emap_add({
 		k='key',
@@ -225,6 +254,10 @@ function makesolid(s,x,y,semi)
 		draw=drawsimple,
 		layer=1,
 	})
+end
+
+function drawduck(e)
+	spr(e.s, e.x, e.y, 1, 1, e.dir<0)
 end
 
 function drawplayer(p)
@@ -325,12 +358,83 @@ function updatecannon(p)
 	end
 end
 
+function updateduck(e)
+	if e.bounce then
+		e.bounce=false
+		e.vy = -14
+	else
+		e.vy = min(e.vy + grav, maxgrav)
+		if not trymove(e, 'y', e.vy) then
+			e.vy = 0
+		end
+	end
+	if trymove(e, 'x', e.dir) then
+		if player.onduck then
+			trymove(player, 'x', e.dir)
+		end
+	else
+		e.dir = e.dir * -1
+	end
+end
+
+function collideduck(e, o, d, v)
+	if o.k=='cannon' then
+		if d=='x' or v<0 then
+			return 'stop'
+		else
+			e.bounce=true
+			return 'stop'
+		end
+	end
+	return 'stop'
+end
+
+function updatefrog(e)
+	e.vy = min(e.vy + grav, maxgrav)
+	if trymove(e, 'y', e.vy) then
+	else
+		if e.vy > 0 then
+			e.vy = -7
+		else
+			e.vy = 0
+		end
+	end
+	if trymove(e, 'x', e.dir) then
+		if player.onfrog then
+			trymove(player, 'x', e.dir)
+		end
+	else
+		e.dir = e.dir * -1
+	end
+end
+
+function collidefrog(e, o, d, v)
+	if o.k=='player' then
+		if d=='y' and v<0 and player.onfrog then
+			if trymove(player, d, v) then
+				return 'pass'
+			end
+		end
+	end
+	return collideduck(e,o,d,v)
+end
+
 function playercollide(e, o, d, v)
 	if o.k=='solid' then
 		if not o.semi then return 'stop' end
 		if d=='y' and v>0 and e.y==o.y-7 then
 			return 'stop'
 		end
+	elseif o.k=='frog' then
+		if d=='y' and v>0 then
+			e.onfrog=true
+		end
+		return 'stop'
+	elseif o.k=='duck' then
+		if d=='y' and v>0 then
+			e.onduck=true
+		end
+		return 'stop'
 	elseif o.k=='portal' then
 		if d=='y' then return 'stop' end
 
@@ -406,6 +510,8 @@ end
 
 function updateplayer(p)
 	p.pushingbubble=false
+	p.onduck=false
+	p.onfrog=false
 
 	if btnp(⬆️) then
 		local i = indexof(p.tools, p.tool)
@@ -458,22 +564,31 @@ function updateplayer(p)
 				end
 			end
 		elseif p.tool=='cannon' then
-			if p.cannon then startgoing(p.cannon) end
+			local x = p.x+8*p.d
+			local maybebad = emap_getall(x,p.y)
+			maybebad[p]=nil
+			if p.cannon then
+				maybebad[p.cannon]=nil
+			end
 
-			p.cannon = {
-				k='cannon',
-				slots={},
-				x=p.x+16*p.d,
-				y=p.y,
-				vy=0,
-				s=cannonspr,
-				draw=drawsimple,
-				layer=2,
-				update=updatecannon,
-				collide=cannoncollide,
-			}
-
-			emap_add(p.cannon)
+			if not next(maybebad) then
+				if p.cannon then startgoing(p.cannon) end
+	
+				p.cannon = {
+					k='cannon',
+					slots={},
+					x=x,
+					y=p.y,
+					vy=0,
+					s=cannonspr,
+					draw=drawsimple,
+					layer=2,
+					update=updatecannon,
+					collide=cannoncollide,
+				}
+	
+				emap_add(p.cannon)
+			end
 		elseif p.tool=='wand' or p.tool=='wand2' then
 			if p.bubble and p.tool!='wand2' then startgoing(p.bubble) end
 	
