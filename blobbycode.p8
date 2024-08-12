@@ -182,7 +182,8 @@ function makefrog(s,x,y)
 		slots={},
 		s=s,x=x,y=y,
 		vy=0,
-		draw=drawsimple,
+		vy=0,dir=1,
+		draw=drawduck,
 		update=updatefrog,
 		layer=2,
 		collide=collidefrog,
@@ -398,6 +399,13 @@ function updatefrog(e)
 			e.vy = 0
 		end
 	end
+	if trymove(e, 'x', e.dir) then
+		if player.onduck then
+			trymove(player, 'x', e.dir)
+		end
+	else
+		e.dir = e.dir * -1
+	end
 end
 
 function collidefrog(e, o, d, v)
@@ -408,7 +416,7 @@ function collidefrog(e, o, d, v)
 			end
 		end
 	end
-	return 'stop'
+	-- return collideduck(e,o,d,v)
 end
 
 function playercollide(e, o, d, v)
