@@ -25,6 +25,7 @@ function _init()
 			elseif fget(s)==1<<5      then mset(x,y,0) makedoor(s,x*8,y*8)
 			elseif fget(s)==1<<6      then mset(x,y,0) makeprize(s,x*8,y*8)
 			elseif fget(s)==1<<7      then mset(x,y,0) makechest(x*8,y*8,'wand')   bubblespr=s
+			elseif fget(s)==1<<7|1<<3 then mset(x,y,0) makeduck(s,x*8,y*8)
 			elseif fget(s)==1<<7|1<<4 then mset(x,y,0) makechest(x*8,y*8,'pgun')   pgunspr=s
 			elseif fget(s)==1<<7|1<<5 then mset(x,y,0) makechest(x*8,y*8,'wand2')  bubblespr=s
 			elseif fget(s)==1<<7|1<<6 then mset(x,y,0) makechest(x*8,y*8,'cannon') cannonspr=s
@@ -158,6 +159,20 @@ function makechest(x,y,tool)
 		tool=tool,
 		draw=drawsimple,
 		layer=1,
+	})
+end
+
+function makeduck(s,x,y)
+	emap_add({
+		k='duck',
+		slots={},
+		s=s,x=x,y=y,
+		vy=0,
+		tool=tool,
+		draw=drawsimple,
+		update=updateduck,
+		layer=2,
+		collide=collideduck,
 	})
 end
 
@@ -325,12 +340,26 @@ function updatecannon(p)
 	end
 end
 
+function updateduck(e)
+	e.vy = min(e.vy + grav, maxgrav)
+	if not trymove(e, 'y', e.vy) then
+		e.vy = 0
+	end
+	trymove(e, 'x', 1)
+end
+
+function collideduck(e, o, d, v)
+	return 'stop'
+end
+
 function playercollide(e, o, d, v)
 	if o.k=='solid' then
 		if not o.semi then return 'stop' end
 		if d=='y' and v>0 and e.y==o.y-7 then
 			return 'stop'
 		end
+	elseif o.k=='duck' then
+		return 'stop'
 	elseif o.k=='portal' then
 		if d=='y' then return 'stop' end
 
