@@ -345,7 +345,11 @@ function updateduck(e)
 	if not trymove(e, 'y', e.vy) then
 		e.vy = 0
 	end
-	trymove(e, 'x', 1)
+	if trymove(e, 'x', 1) then
+		if player.onduck then
+			trymove(player, 'x', 1)
+		end
+	end
 end
 
 function collideduck(e, o, d, v)
@@ -359,6 +363,9 @@ function playercollide(e, o, d, v)
 			return 'stop'
 		end
 	elseif o.k=='duck' then
+		if d=='y' and v>0 then
+			e.onduck=true
+		end
 		return 'stop'
 	elseif o.k=='portal' then
 		if d=='y' then return 'stop' end
@@ -435,6 +442,7 @@ end
 
 function updateplayer(p)
 	p.pushingbubble=false
+	p.onduck=false
 
 	if btnp(⬆️) then
 		local i = indexof(p.tools, p.tool)
