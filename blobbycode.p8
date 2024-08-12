@@ -167,9 +167,9 @@ function makeduck(s,x,y)
 		k='duck',
 		slots={},
 		s=s,x=x,y=y,
-		vy=0,
+		vy=0,dir=1,
 		tool=tool,
-		draw=drawsimple,
+		draw=drawduck,
 		update=updateduck,
 		layer=2,
 		collide=collideduck,
@@ -240,6 +240,10 @@ function makesolid(s,x,y,semi)
 		draw=drawsimple,
 		layer=1,
 	})
+end
+
+function drawduck(e)
+	spr(e.s, e.x, e.y, 1, 1, e.dir<0)
 end
 
 function drawplayer(p)
@@ -345,10 +349,12 @@ function updateduck(e)
 	if not trymove(e, 'y', e.vy) then
 		e.vy = 0
 	end
-	if trymove(e, 'x', 1) then
+	if trymove(e, 'x', e.dir) then
 		if player.onduck then
-			trymove(player, 'x', 1)
+			trymove(player, 'x', e.dir)
 		end
+	else
+		e.dir = e.dir * -1
 	end
 end
 
