@@ -9,6 +9,50 @@ __lua__
 -- they have to bring them home
 -- but watch out for surprises!
 
+--[[
+
+dangers
+
+ enemies
+  wolves
+  bees
+
+ hunger
+  must eat apples?
+  what happens if empty?
+
+ wolves in sheeps clothing!!
+  they seem good at first
+  but they shake off costume
+  and then they attack you!
+
+interactive objects
+
+ trees
+  can contain objects
+  you can climb them??
+   why?
+  can chop down for wood?
+  	can build things???
+ 
+ bushes
+  can contain objects?
+ 
+ water
+ 	can build boat?
+
+building objects
+
+ ingredients
+  wood from trees
+  water? use bucket to get?
+ 
+ how to build
+ 	lay sticks on ground?
+ 	unique pattern per obj?
+
+--]]
+
 function _draw()
 	cls(3)
 	spr(1,10,10)
